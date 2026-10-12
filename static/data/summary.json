@@ -1,0 +1,262 @@
+{
+  "total_records": 30750,
+  "total_trains": 5,
+  "total_stations": 725,
+  "date_range": {
+    "from": "2026-07-28",
+    "to": "2026-08-26"
+  },
+  "model_accuracy": {
+    "val_mae": null,
+    "test_mae": null,
+    "test_rmse": null,
+    "test_r2": null
+  },
+  "trains": [
+    {
+      "train_number": "12301",
+      "train_name": "Howrah Rajdhani Express",
+      "n_records": 6540,
+      "avg_delay_minutes": 70.33,
+      "on_time_pct": 4.6
+    },
+    {
+      "train_number": "12627",
+      "train_name": "Karnataka Express",
+      "n_records": 8280,
+      "avg_delay_minutes": 97.6,
+      "on_time_pct": 2.3
+    },
+    {
+      "train_number": "12628",
+      "train_name": "Karnataka Express (Return)",
+      "n_records": 8280,
+      "avg_delay_minutes": 90.05,
+      "on_time_pct": 3.2
+    },
+    {
+      "train_number": "12951",
+      "train_name": "Mumbai Rajdhani Express",
+      "n_records": 6060,
+      "avg_delay_minutes": 81.31,
+      "on_time_pct": 4.1
+    },
+    {
+      "train_number": "16089",
+      "train_name": "Cheran Express",
+      "n_records": 1590,
+      "avg_delay_minutes": 21.53,
+      "on_time_pct": 13.9
+    }
+  ],
+  "overall_distribution": {
+    "bins": [
+      0.0,
+      7.2,
+      14.4,
+      21.6,
+      28.8,
+      36.0,
+      43.2,
+      50.5,
+      57.7,
+      64.9,
+      72.1,
+      79.3,
+      86.5,
+      93.7,
+      100.9,
+      108.1,
+      115.3,
+      122.5,
+      129.7,
+      136.9,
+      144.2,
+      151.4,
+      158.6,
+      165.8,
+      173.0,
+      180.2,
+      187.4,
+      194.6,
+      201.8,
+      209.0,
+      216.2,
+      223.4,
+      230.6,
+      237.8,
+      245.1,
+      252.3,
+      259.5,
+      266.7,
+      273.9,
+      281.1,
+      288.3
+    ],
+    "counts": [
+      1695,
+      1568,
+      1545,
+      1451,
+      1457,
+      1546,
+      1446,
+      1539,
+      1518,
+      1417,
+      1262,
+      1210,
+      1188,
+      1129,
+      1090,
+      976,
+      1021,
+      1025,
+      905,
+      804,
+      721,
+      610,
+      575,
+      526,
+      539,
+      477,
+      348,
+      281,
+      221,
+      215,
+      130,
+      70,
+      46,
+      80,
+      53,
+      24,
+      10,
+      13,
+      9,
+      10
+    ]
+  },
+  "overall_trend": [
+    {
+      "date": "2026-07-28",
+      "avg_delay": 83.07
+    },
+    {
+      "date": "2026-07-29",
+      "avg_delay": 52.07
+    },
+    {
+      "date": "2026-07-30",
+      "avg_delay": 67.44
+    },
+    {
+      "date": "2026-07-31",
+      "avg_delay": 94.79
+    },
+    {
+      "date": "2026-08-01",
+      "avg_delay": 83.75
+    },
+    {
+      "date": "2026-08-02",
+      "avg_delay": 93.34
+    },
+    {
+      "date": "2026-08-03",
+      "avg_delay": 59.15
+    },
+    {
+      "date": "2026-08-04",
+      "avg_delay": 92.87
+    },
+    {
+      "date": "2026-08-05",
+      "avg_delay": 75.1
+    },
+    {
+      "date": "2026-08-06",
+      "avg_delay": 116.59
+    },
+    {
+      "date": "2026-08-07",
+      "avg_delay": 64.46
+    },
+    {
+      "date": "2026-08-08",
+      "avg_delay": 92.21
+    },
+    {
+      "date": "2026-08-09",
+      "avg_delay": 82.76
+    },
+    {
+      "date": "2026-08-10",
+      "avg_delay": 75.96
+    },
+    {
+      "date": "2026-08-11",
+      "avg_delay": 94.14
+    },
+    {
+      "date": "2026-08-12",
+      "avg_delay": 89.95
+    },
+    {
+      "date": "2026-08-13",
+      "avg_delay": 96.89
+    },
+    {
+      "date": "2026-08-14",
+      "avg_delay": 75.82
+    },
+    {
+      "date": "2026-08-15",
+      "avg_delay": 89.76
+    },
+    {
+      "date": "2026-08-16",
+      "avg_delay": 84.45
+    },
+    {
+      "date": "2026-08-17",
+      "avg_delay": 79.57
+    },
+    {
+      "date": "2026-08-18",
+      "avg_delay": 77.95
+    },
+    {
+      "date": "2026-08-19",
+      "avg_delay": 85.91
+    },
+    {
+      "date": "2026-08-20",
+      "avg_delay": 93.43
+    },
+    {
+      "date": "2026-08-21",
+      "avg_delay": 70.18
+    },
+    {
+      "date": "2026-08-22",
+      "avg_delay": 89.38
+    },
+    {
+      "date": "2026-08-23",
+      "avg_delay": 89.42
+    },
+    {
+      "date": "2026-08-24",
+      "avg_delay": 81.96
+    },
+    {
+      "date": "2026-08-25",
+      "avg_delay": 77.5
+    },
+    {
+      "date": "2026-08-26",
+      "avg_delay": 68.92
+    }
+  ],
+  "generated_at": "2026-10-11T18:23:42.627081+00:00Z"
+}

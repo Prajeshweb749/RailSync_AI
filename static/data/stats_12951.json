@@ -1,0 +1,1941 @@
+{
+  "train_number": "12951",
+  "train_name": "Mumbai Rajdhani Express",
+  "n_records": 6060,
+  "n_journey_days": 30,
+  "avg_delay_minutes": 81.31,
+  "on_time_pct": 4.1,
+  "late_pct": 80.8,
+  "delay_by_station": [
+    {
+      "station": "NDLS",
+      "avg_delay": 143.6,
+      "std_delay": 49.72,
+      "count": 30,
+      "min_delay": 35.9,
+      "max_delay": 282.9
+    },
+    {
+      "station": "CSB",
+      "avg_delay": 143.1,
+      "std_delay": 50.44,
+      "count": 30,
+      "min_delay": 39.1,
+      "max_delay": 280.6
+    },
+    {
+      "station": "PGMD",
+      "avg_delay": 142.43,
+      "std_delay": 52.04,
+      "count": 30,
+      "min_delay": 44.6,
+      "max_delay": 288.3
+    },
+    {
+      "station": "TKJ",
+      "avg_delay": 142.39,
+      "std_delay": 51.39,
+      "count": 30,
+      "min_delay": 44.2,
+      "max_delay": 283.3
+    },
+    {
+      "station": "NZM",
+      "avg_delay": 142.02,
+      "std_delay": 51.4,
+      "count": 30,
+      "min_delay": 49.4,
+      "max_delay": 286.2
+    },
+    {
+      "station": "OKA",
+      "avg_delay": 141.61,
+      "std_delay": 51.69,
+      "count": 30,
+      "min_delay": 48.8,
+      "max_delay": 288.1
+    },
+    {
+      "station": "TKD",
+      "avg_delay": 141.5,
+      "std_delay": 51.4,
+      "count": 30,
+      "min_delay": 47.4,
+      "max_delay": 285.3
+    },
+    {
+      "station": "FDB",
+      "avg_delay": 140.54,
+      "std_delay": 52.33,
+      "count": 30,
+      "min_delay": 44.1,
+      "max_delay": 285.6
+    },
+    {
+      "station": "FDN",
+      "avg_delay": 139.6,
+      "std_delay": 53.11,
+      "count": 30,
+      "min_delay": 39.4,
+      "max_delay": 285.3
+    },
+    {
+      "station": "BVH",
+      "avg_delay": 139.03,
+      "std_delay": 53.37,
+      "count": 30,
+      "min_delay": 39.8,
+      "max_delay": 283.5
+    },
+    {
+      "station": "RDE",
+      "avg_delay": 138.4,
+      "std_delay": 51.58,
+      "count": 30,
+      "min_delay": 46.7,
+      "max_delay": 277.9
+    },
+    {
+      "station": "SHLK",
+      "avg_delay": 138.3,
+      "std_delay": 51.55,
+      "count": 30,
+      "min_delay": 44.0,
+      "max_delay": 280.2
+    },
+    {
+      "station": "AST",
+      "avg_delay": 138.03,
+      "std_delay": 52.25,
+      "count": 30,
+      "min_delay": 45.7,
+      "max_delay": 276.9
+    },
+    {
+      "station": "PWL",
+      "avg_delay": 137.72,
+      "std_delay": 51.41,
+      "count": 30,
+      "min_delay": 49.8,
+      "max_delay": 275.8
+    },
+    {
+      "station": "HDL",
+      "avg_delay": 136.56,
+      "std_delay": 51.66,
+      "count": 30,
+      "min_delay": 44.5,
+      "max_delay": 276.2
+    },
+    {
+      "station": "CHJ",
+      "avg_delay": 135.61,
+      "std_delay": 48.81,
+      "count": 30,
+      "min_delay": 50.4,
+      "max_delay": 270.6
+    },
+    {
+      "station": "KSV",
+      "avg_delay": 135.59,
+      "std_delay": 49.42,
+      "count": 30,
+      "min_delay": 49.4,
+      "max_delay": 268.8
+    },
+    {
+      "station": "AJH",
+      "avg_delay": 134.33,
+      "std_delay": 48.9,
+      "count": 30,
+      "min_delay": 50.8,
+      "max_delay": 261.3
+    },
+    {
+      "station": "VRBD",
+      "avg_delay": 132.76,
+      "std_delay": 47.83,
+      "count": 30,
+      "min_delay": 48.7,
+      "max_delay": 253.1
+    },
+    {
+      "station": "BTSR",
+      "avg_delay": 132.56,
+      "std_delay": 48.37,
+      "count": 30,
+      "min_delay": 42.7,
+      "max_delay": 257.4
+    },
+    {
+      "station": "MTJ",
+      "avg_delay": 131.79,
+      "std_delay": 49.23,
+      "count": 30,
+      "min_delay": 46.1,
+      "max_delay": 257.6
+    },
+    {
+      "station": "MSRP",
+      "avg_delay": 131.05,
+      "std_delay": 49.62,
+      "count": 30,
+      "min_delay": 43.0,
+      "max_delay": 251.7
+    },
+    {
+      "station": "RKR",
+      "avg_delay": 130.15,
+      "std_delay": 49.3,
+      "count": 30,
+      "min_delay": 41.1,
+      "max_delay": 246.0
+    },
+    {
+      "station": "CRG",
+      "avg_delay": 130.01,
+      "std_delay": 49.0,
+      "count": 30,
+      "min_delay": 40.2,
+      "max_delay": 244.8
+    },
+    {
+      "station": "JJA",
+      "avg_delay": 129.25,
+      "std_delay": 48.97,
+      "count": 30,
+      "min_delay": 37.3,
+      "max_delay": 245.3
+    },
+    {
+      "station": "BTE",
+      "avg_delay": 128.65,
+      "std_delay": 48.31,
+      "count": 30,
+      "min_delay": 36.6,
+      "max_delay": 242.7
+    },
+    {
+      "station": "DUM",
+      "avg_delay": 128.48,
+      "std_delay": 49.61,
+      "count": 30,
+      "min_delay": 38.9,
+      "max_delay": 246.4
+    },
+    {
+      "station": "SWAR",
+      "avg_delay": 128.45,
+      "std_delay": 47.64,
+      "count": 30,
+      "min_delay": 38.5,
+      "max_delay": 238.0
+    },
+    {
+      "station": "JCU",
+      "avg_delay": 128.28,
+      "std_delay": 47.07,
+      "count": 30,
+      "min_delay": 38.4,
+      "max_delay": 238.8
+    },
+    {
+      "station": "BXN",
+      "avg_delay": 127.44,
+      "std_delay": 44.81,
+      "count": 30,
+      "min_delay": 47.4,
+      "max_delay": 236.8
+    },
+    {
+      "station": "PNGR",
+      "avg_delay": 127.37,
+      "std_delay": 46.75,
+      "count": 30,
+      "min_delay": 42.3,
+      "max_delay": 233.1
+    },
+    {
+      "station": "KEV",
+      "avg_delay": 127.09,
+      "std_delay": 45.32,
+      "count": 30,
+      "min_delay": 46.7,
+      "max_delay": 235.2
+    },
+    {
+      "station": "DY",
+      "avg_delay": 127.0,
+      "std_delay": 45.11,
+      "count": 30,
+      "min_delay": 49.6,
+      "max_delay": 240.3
+    },
+    {
+      "station": "FSP",
+      "avg_delay": 126.38,
+      "std_delay": 45.3,
+      "count": 30,
+      "min_delay": 48.3,
+      "max_delay": 241.9
+    },
+    {
+      "station": "DNHK",
+      "avg_delay": 125.06,
+      "std_delay": 44.11,
+      "count": 30,
+      "min_delay": 49.8,
+      "max_delay": 233.1
+    },
+    {
+      "station": "HAN",
+      "avg_delay": 125.04,
+      "std_delay": 43.34,
+      "count": 30,
+      "min_delay": 49.4,
+      "max_delay": 233.8
+    },
+    {
+      "station": "SMBJ",
+      "avg_delay": 124.68,
+      "std_delay": 43.19,
+      "count": 30,
+      "min_delay": 51.1,
+      "max_delay": 234.8
+    },
+    {
+      "station": "KNDP",
+      "avg_delay": 124.34,
+      "std_delay": 42.85,
+      "count": 30,
+      "min_delay": 54.9,
+      "max_delay": 231.6
+    },
+    {
+      "station": "PDZ",
+      "avg_delay": 124.18,
+      "std_delay": 41.81,
+      "count": 30,
+      "min_delay": 57.2,
+      "max_delay": 228.1
+    },
+    {
+      "station": "GGC",
+      "avg_delay": 124.11,
+      "std_delay": 41.19,
+      "count": 30,
+      "min_delay": 57.2,
+      "max_delay": 225.0
+    },
+    {
+      "station": "COO",
+      "avg_delay": 124.07,
+      "std_delay": 42.17,
+      "count": 30,
+      "min_delay": 53.0,
+      "max_delay": 224.0
+    },
+    {
+      "station": "LRU",
+      "avg_delay": 123.19,
+      "std_delay": 40.51,
+      "count": 30,
+      "min_delay": 57.3,
+      "max_delay": 221.0
+    },
+    {
+      "station": "NNW",
+      "avg_delay": 122.34,
+      "std_delay": 40.99,
+      "count": 30,
+      "min_delay": 54.6,
+      "max_delay": 224.3
+    },
+    {
+      "station": "NMD",
+      "avg_delay": 121.55,
+      "std_delay": 40.11,
+      "count": 30,
+      "min_delay": 58.2,
+      "max_delay": 220.9
+    },
+    {
+      "station": "MLZ",
+      "avg_delay": 120.66,
+      "std_delay": 40.78,
+      "count": 30,
+      "min_delay": 57.1,
+      "max_delay": 221.4
+    },
+    {
+      "station": "MXL",
+      "avg_delay": 119.7,
+      "std_delay": 41.56,
+      "count": 30,
+      "min_delay": 54.0,
+      "max_delay": 218.9
+    },
+    {
+      "station": "RNT",
+      "avg_delay": 119.52,
+      "std_delay": 41.69,
+      "count": 30,
+      "min_delay": 53.5,
+      "max_delay": 216.9
+    },
+    {
+      "station": "SWM",
+      "avg_delay": 118.99,
+      "std_delay": 41.46,
+      "count": 30,
+      "min_delay": 52.9,
+      "max_delay": 214.6
+    },
+    {
+      "station": "RWJ",
+      "avg_delay": 118.17,
+      "std_delay": 40.57,
+      "count": 30,
+      "min_delay": 56.8,
+      "max_delay": 207.2
+    },
+    {
+      "station": "KTA",
+      "avg_delay": 118.02,
+      "std_delay": 40.27,
+      "count": 30,
+      "min_delay": 53.9,
+      "max_delay": 206.1
+    },
+    {
+      "station": "GKB",
+      "avg_delay": 117.87,
+      "std_delay": 39.28,
+      "count": 30,
+      "min_delay": 60.5,
+      "max_delay": 202.4
+    },
+    {
+      "station": "AMLI",
+      "avg_delay": 117.62,
+      "std_delay": 40.18,
+      "count": 30,
+      "min_delay": 59.8,
+      "max_delay": 208.3
+    },
+    {
+      "station": "LBN",
+      "avg_delay": 117.39,
+      "std_delay": 39.63,
+      "count": 30,
+      "min_delay": 63.1,
+      "max_delay": 207.8
+    },
+    {
+      "station": "IDG",
+      "avg_delay": 117.28,
+      "std_delay": 39.84,
+      "count": 30,
+      "min_delay": 56.4,
+      "max_delay": 206.2
+    },
+    {
+      "station": "KPZ",
+      "avg_delay": 117.02,
+      "std_delay": 38.98,
+      "count": 30,
+      "min_delay": 60.7,
+      "max_delay": 201.4
+    },
+    {
+      "station": "LKE",
+      "avg_delay": 116.95,
+      "std_delay": 40.36,
+      "count": 30,
+      "min_delay": 57.4,
+      "max_delay": 208.5
+    },
+    {
+      "station": "KPTN",
+      "avg_delay": 116.16,
+      "std_delay": 39.28,
+      "count": 30,
+      "min_delay": 55.9,
+      "max_delay": 204.3
+    },
+    {
+      "station": "ARE",
+      "avg_delay": 116.08,
+      "std_delay": 39.29,
+      "count": 30,
+      "min_delay": 57.3,
+      "max_delay": 205.7
+    },
+    {
+      "station": "GQL",
+      "avg_delay": 114.65,
+      "std_delay": 39.35,
+      "count": 30,
+      "min_delay": 52.8,
+      "max_delay": 205.6
+    },
+    {
+      "station": "KOTA",
+      "avg_delay": 113.07,
+      "std_delay": 39.34,
+      "count": 30,
+      "min_delay": 48.9,
+      "max_delay": 202.6
+    },
+    {
+      "station": "DKNT",
+      "avg_delay": 111.93,
+      "std_delay": 39.05,
+      "count": 30,
+      "min_delay": 51.3,
+      "max_delay": 199.8
+    },
+    {
+      "station": "DDV",
+      "avg_delay": 111.8,
+      "std_delay": 38.46,
+      "count": 30,
+      "min_delay": 50.4,
+      "max_delay": 194.9
+    },
+    {
+      "station": "ALNI",
+      "avg_delay": 111.45,
+      "std_delay": 37.58,
+      "count": 30,
+      "min_delay": 49.3,
+      "max_delay": 190.6
+    },
+    {
+      "station": "DKQ",
+      "avg_delay": 111.41,
+      "std_delay": 37.76,
+      "count": 30,
+      "min_delay": 45.0,
+      "max_delay": 191.2
+    },
+    {
+      "station": "RDT",
+      "avg_delay": 110.63,
+      "std_delay": 37.88,
+      "count": 30,
+      "min_delay": 45.1,
+      "max_delay": 190.5
+    },
+    {
+      "station": "KIW",
+      "avg_delay": 110.03,
+      "std_delay": 39.25,
+      "count": 30,
+      "min_delay": 48.6,
+      "max_delay": 195.3
+    },
+    {
+      "station": "DARA",
+      "avg_delay": 109.93,
+      "std_delay": 37.77,
+      "count": 30,
+      "min_delay": 48.2,
+      "max_delay": 191.8
+    },
+    {
+      "station": "MKX",
+      "avg_delay": 109.6,
+      "std_delay": 39.62,
+      "count": 30,
+      "min_delay": 46.3,
+      "max_delay": 199.3
+    },
+    {
+      "station": "RMA",
+      "avg_delay": 108.66,
+      "std_delay": 39.8,
+      "count": 30,
+      "min_delay": 44.2,
+      "max_delay": 201.3
+    },
+    {
+      "station": "DKRA",
+      "avg_delay": 107.89,
+      "std_delay": 40.02,
+      "count": 30,
+      "min_delay": 34.9,
+      "max_delay": 194.1
+    },
+    {
+      "station": "JHW",
+      "avg_delay": 107.88,
+      "std_delay": 39.79,
+      "count": 30,
+      "min_delay": 40.4,
+      "max_delay": 197.0
+    },
+    {
+      "station": "BWM",
+      "avg_delay": 106.83,
+      "std_delay": 40.06,
+      "count": 30,
+      "min_delay": 38.3,
+      "max_delay": 196.1
+    },
+    {
+      "station": "KRLS",
+      "avg_delay": 105.43,
+      "std_delay": 39.26,
+      "count": 30,
+      "min_delay": 41.9,
+      "max_delay": 189.9
+    },
+    {
+      "station": "GOH",
+      "avg_delay": 104.25,
+      "std_delay": 37.45,
+      "count": 30,
+      "min_delay": 42.6,
+      "max_delay": 186.1
+    },
+    {
+      "station": "SGZ",
+      "avg_delay": 104.22,
+      "std_delay": 37.21,
+      "count": 30,
+      "min_delay": 37.8,
+      "max_delay": 185.5
+    },
+    {
+      "station": "SVA",
+      "avg_delay": 103.68,
+      "std_delay": 37.13,
+      "count": 30,
+      "min_delay": 39.0,
+      "max_delay": 182.5
+    },
+    {
+      "station": "NKH",
+      "avg_delay": 102.81,
+      "std_delay": 37.07,
+      "count": 30,
+      "min_delay": 43.7,
+      "max_delay": 182.7
+    },
+    {
+      "station": "CMU",
+      "avg_delay": 100.74,
+      "std_delay": 37.65,
+      "count": 30,
+      "min_delay": 41.0,
+      "max_delay": 181.5
+    },
+    {
+      "station": "TLZ",
+      "avg_delay": 100.19,
+      "std_delay": 38.74,
+      "count": 30,
+      "min_delay": 40.1,
+      "max_delay": 186.5
+    },
+    {
+      "station": "VMA",
+      "avg_delay": 99.29,
+      "std_delay": 40.31,
+      "count": 30,
+      "min_delay": 39.9,
+      "max_delay": 190.7
+    },
+    {
+      "station": "THUR",
+      "avg_delay": 99.19,
+      "std_delay": 39.22,
+      "count": 30,
+      "min_delay": 39.7,
+      "max_delay": 187.6
+    },
+    {
+      "station": "LNR",
+      "avg_delay": 97.62,
+      "std_delay": 40.01,
+      "count": 30,
+      "min_delay": 36.9,
+      "max_delay": 187.6
+    },
+    {
+      "station": "NAD",
+      "avg_delay": 96.35,
+      "std_delay": 38.06,
+      "count": 30,
+      "min_delay": 34.7,
+      "max_delay": 185.2
+    },
+    {
+      "station": "MEP",
+      "avg_delay": 96.0,
+      "std_delay": 39.78,
+      "count": 30,
+      "min_delay": 38.4,
+      "max_delay": 189.4
+    },
+    {
+      "station": "RLK",
+      "avg_delay": 95.87,
+      "std_delay": 39.02,
+      "count": 30,
+      "min_delay": 37.1,
+      "max_delay": 188.4
+    },
+    {
+      "station": "BRNA",
+      "avg_delay": 94.41,
+      "std_delay": 37.22,
+      "count": 30,
+      "min_delay": 28.4,
+      "max_delay": 178.9
+    },
+    {
+      "station": "KUH",
+      "avg_delay": 93.86,
+      "std_delay": 37.62,
+      "count": 30,
+      "min_delay": 21.7,
+      "max_delay": 179.4
+    },
+    {
+      "station": "RNH",
+      "avg_delay": 93.82,
+      "std_delay": 37.6,
+      "count": 30,
+      "min_delay": 19.2,
+      "max_delay": 179.8
+    },
+    {
+      "station": "BOD",
+      "avg_delay": 93.29,
+      "std_delay": 38.3,
+      "count": 30,
+      "min_delay": 17.6,
+      "max_delay": 180.3
+    },
+    {
+      "station": "RTM",
+      "avg_delay": 92.62,
+      "std_delay": 37.87,
+      "count": 30,
+      "min_delay": 21.4,
+      "max_delay": 177.0
+    },
+    {
+      "station": "MRN",
+      "avg_delay": 91.87,
+      "std_delay": 36.09,
+      "count": 30,
+      "min_delay": 25.6,
+      "max_delay": 172.3
+    },
+    {
+      "station": "BILD",
+      "avg_delay": 91.3,
+      "std_delay": 35.41,
+      "count": 30,
+      "min_delay": 26.6,
+      "max_delay": 171.0
+    },
+    {
+      "station": "RTI",
+      "avg_delay": 90.85,
+      "std_delay": 34.46,
+      "count": 30,
+      "min_delay": 28.4,
+      "max_delay": 168.4
+    },
+    {
+      "station": "BOG",
+      "avg_delay": 89.98,
+      "std_delay": 35.1,
+      "count": 30,
+      "min_delay": 30.7,
+      "max_delay": 169.8
+    },
+    {
+      "station": "AGR",
+      "avg_delay": 89.17,
+      "std_delay": 34.74,
+      "count": 30,
+      "min_delay": 33.8,
+      "max_delay": 171.5
+    },
+    {
+      "station": "BMI",
+      "avg_delay": 88.88,
+      "std_delay": 34.51,
+      "count": 30,
+      "min_delay": 36.0,
+      "max_delay": 170.3
+    },
+    {
+      "station": "PCN",
+      "avg_delay": 88.56,
+      "std_delay": 33.47,
+      "count": 30,
+      "min_delay": 34.9,
+      "max_delay": 170.4
+    },
+    {
+      "station": "BJG",
+      "avg_delay": 87.75,
+      "std_delay": 33.06,
+      "count": 30,
+      "min_delay": 33.1,
+      "max_delay": 167.2
+    },
+    {
+      "station": "THDR",
+      "avg_delay": 87.69,
+      "std_delay": 33.0,
+      "count": 30,
+      "min_delay": 34.8,
+      "max_delay": 168.3
+    },
+    {
+      "station": "MGN",
+      "avg_delay": 86.74,
+      "std_delay": 32.49,
+      "count": 30,
+      "min_delay": 33.0,
+      "max_delay": 162.5
+    },
+    {
+      "station": "ANAS",
+      "avg_delay": 84.03,
+      "std_delay": 32.37,
+      "count": 30,
+      "min_delay": 31.4,
+      "max_delay": 154.1
+    },
+    {
+      "station": "BIO",
+      "avg_delay": 82.32,
+      "std_delay": 31.38,
+      "count": 30,
+      "min_delay": 31.7,
+      "max_delay": 147.8
+    },
+    {
+      "station": "DHD",
+      "avg_delay": 82.07,
+      "std_delay": 32.02,
+      "count": 30,
+      "min_delay": 28.0,
+      "max_delay": 148.1
+    },
+    {
+      "station": "RET",
+      "avg_delay": 80.73,
+      "std_delay": 31.71,
+      "count": 30,
+      "min_delay": 23.6,
+      "max_delay": 145.5
+    },
+    {
+      "station": "JKT",
+      "avg_delay": 78.96,
+      "std_delay": 32.17,
+      "count": 30,
+      "min_delay": 16.2,
+      "max_delay": 146.1
+    },
+    {
+      "station": "USRA",
+      "avg_delay": 78.15,
+      "std_delay": 32.21,
+      "count": 30,
+      "min_delay": 22.0,
+      "max_delay": 146.6
+    },
+    {
+      "station": "MAM",
+      "avg_delay": 77.82,
+      "std_delay": 32.06,
+      "count": 30,
+      "min_delay": 26.6,
+      "max_delay": 149.0
+    },
+    {
+      "station": "LMK",
+      "avg_delay": 77.35,
+      "std_delay": 31.32,
+      "count": 30,
+      "min_delay": 28.2,
+      "max_delay": 145.8
+    },
+    {
+      "station": "PPD",
+      "avg_delay": 76.77,
+      "std_delay": 31.72,
+      "count": 30,
+      "min_delay": 30.6,
+      "max_delay": 148.7
+    },
+    {
+      "station": "SAT",
+      "avg_delay": 75.94,
+      "std_delay": 31.57,
+      "count": 30,
+      "min_delay": 30.8,
+      "max_delay": 148.1
+    },
+    {
+      "station": "CCL",
+      "avg_delay": 75.17,
+      "std_delay": 31.88,
+      "count": 30,
+      "min_delay": 28.4,
+      "max_delay": 146.1
+    },
+    {
+      "station": "GDA",
+      "avg_delay": 74.93,
+      "std_delay": 31.14,
+      "count": 30,
+      "min_delay": 25.9,
+      "max_delay": 142.9
+    },
+    {
+      "station": "KIZ",
+      "avg_delay": 74.84,
+      "std_delay": 30.95,
+      "count": 30,
+      "min_delay": 31.4,
+      "max_delay": 144.6
+    },
+    {
+      "station": "KRSA",
+      "avg_delay": 73.93,
+      "std_delay": 31.85,
+      "count": 30,
+      "min_delay": 27.4,
+      "max_delay": 143.8
+    },
+    {
+      "station": "DRL",
+      "avg_delay": 73.63,
+      "std_delay": 31.98,
+      "count": 30,
+      "min_delay": 30.9,
+      "max_delay": 143.2
+    },
+    {
+      "station": "CPN",
+      "avg_delay": 72.39,
+      "std_delay": 32.22,
+      "count": 30,
+      "min_delay": 31.2,
+      "max_delay": 143.1
+    },
+    {
+      "station": "LAN",
+      "avg_delay": 72.38,
+      "std_delay": 31.6,
+      "count": 30,
+      "min_delay": 29.3,
+      "max_delay": 144.1
+    },
+    {
+      "station": "BKRL",
+      "avg_delay": 72.32,
+      "std_delay": 32.79,
+      "count": 30,
+      "min_delay": 27.9,
+      "max_delay": 146.6
+    },
+    {
+      "station": "SMLA",
+      "avg_delay": 71.44,
+      "std_delay": 31.69,
+      "count": 30,
+      "min_delay": 23.4,
+      "max_delay": 140.4
+    },
+    {
+      "station": "CYI",
+      "avg_delay": 70.63,
+      "std_delay": 31.38,
+      "count": 30,
+      "min_delay": 14.6,
+      "max_delay": 139.2
+    },
+    {
+      "station": "AIR",
+      "avg_delay": 70.53,
+      "std_delay": 31.82,
+      "count": 30,
+      "min_delay": 16.1,
+      "max_delay": 140.1
+    },
+    {
+      "station": "PIO",
+      "avg_delay": 69.85,
+      "std_delay": 32.08,
+      "count": 30,
+      "min_delay": 11.7,
+      "max_delay": 143.4
+    },
+    {
+      "station": "BRC",
+      "avg_delay": 68.33,
+      "std_delay": 31.04,
+      "count": 30,
+      "min_delay": 13.2,
+      "max_delay": 137.2
+    },
+    {
+      "station": "VS",
+      "avg_delay": 67.67,
+      "std_delay": 30.94,
+      "count": 30,
+      "min_delay": 18.0,
+      "max_delay": 136.2
+    },
+    {
+      "station": "MPR",
+      "avg_delay": 67.37,
+      "std_delay": 30.03,
+      "count": 30,
+      "min_delay": 19.6,
+      "max_delay": 135.3
+    },
+    {
+      "station": "VRM",
+      "avg_delay": 66.84,
+      "std_delay": 30.61,
+      "count": 30,
+      "min_delay": 21.8,
+      "max_delay": 134.2
+    },
+    {
+      "station": "ITA",
+      "avg_delay": 65.92,
+      "std_delay": 30.46,
+      "count": 30,
+      "min_delay": 19.1,
+      "max_delay": 139.0
+    },
+    {
+      "station": "KSPR",
+      "avg_delay": 65.11,
+      "std_delay": 30.63,
+      "count": 30,
+      "min_delay": 17.2,
+      "max_delay": 138.3
+    },
+    {
+      "station": "MYG",
+      "avg_delay": 64.38,
+      "std_delay": 31.95,
+      "count": 30,
+      "min_delay": 16.5,
+      "max_delay": 141.8
+    },
+    {
+      "station": "MYGL",
+      "avg_delay": 64.35,
+      "std_delay": 32.38,
+      "count": 30,
+      "min_delay": 12.6,
+      "max_delay": 140.1
+    },
+    {
+      "station": "LKD",
+      "avg_delay": 64.16,
+      "std_delay": 32.0,
+      "count": 30,
+      "min_delay": 12.0,
+      "max_delay": 135.0
+    },
+    {
+      "station": "PLJ",
+      "avg_delay": 63.65,
+      "std_delay": 31.95,
+      "count": 30,
+      "min_delay": 15.6,
+      "max_delay": 132.8
+    },
+    {
+      "station": "VRE",
+      "avg_delay": 62.65,
+      "std_delay": 31.68,
+      "count": 30,
+      "min_delay": 14.2,
+      "max_delay": 129.8
+    },
+    {
+      "station": "NIU",
+      "avg_delay": 61.34,
+      "std_delay": 31.58,
+      "count": 30,
+      "min_delay": 11.5,
+      "max_delay": 129.4
+    },
+    {
+      "station": "CVJ",
+      "avg_delay": 60.72,
+      "std_delay": 31.24,
+      "count": 30,
+      "min_delay": 11.4,
+      "max_delay": 131.8
+    },
+    {
+      "station": "BH",
+      "avg_delay": 59.16,
+      "std_delay": 30.74,
+      "count": 30,
+      "min_delay": 17.1,
+      "max_delay": 124.4
+    },
+    {
+      "station": "AKV",
+      "avg_delay": 58.25,
+      "std_delay": 30.16,
+      "count": 30,
+      "min_delay": 13.9,
+      "max_delay": 117.8
+    },
+    {
+      "station": "PAO",
+      "avg_delay": 57.57,
+      "std_delay": 29.95,
+      "count": 30,
+      "min_delay": 14.1,
+      "max_delay": 118.0
+    },
+    {
+      "station": "HAT",
+      "avg_delay": 56.35,
+      "std_delay": 29.17,
+      "count": 30,
+      "min_delay": 14.3,
+      "max_delay": 113.7
+    },
+    {
+      "station": "KSB",
+      "avg_delay": 55.48,
+      "std_delay": 29.01,
+      "count": 30,
+      "min_delay": 11.6,
+      "max_delay": 116.0
+    },
+    {
+      "station": "KIM",
+      "avg_delay": 53.9,
+      "std_delay": 29.75,
+      "count": 30,
+      "min_delay": 6.1,
+      "max_delay": 116.7
+    },
+    {
+      "station": "KDSD",
+      "avg_delay": 53.2,
+      "std_delay": 30.43,
+      "count": 30,
+      "min_delay": 6.4,
+      "max_delay": 118.4
+    },
+    {
+      "station": "SYN",
+      "avg_delay": 52.19,
+      "std_delay": 31.24,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 122.9
+    },
+    {
+      "station": "GTX",
+      "avg_delay": 52.0,
+      "std_delay": 31.42,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 120.6
+    },
+    {
+      "station": "KSE",
+      "avg_delay": 51.69,
+      "std_delay": 31.48,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 124.8
+    },
+    {
+      "station": "URN",
+      "avg_delay": 50.01,
+      "std_delay": 31.91,
+      "count": 30,
+      "min_delay": 0.8,
+      "max_delay": 129.5
+    },
+    {
+      "station": "ST",
+      "avg_delay": 48.57,
+      "std_delay": 30.83,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 127.3
+    },
+    {
+      "station": "UDN",
+      "avg_delay": 47.5,
+      "std_delay": 29.62,
+      "count": 30,
+      "min_delay": 0.4,
+      "max_delay": 123.2
+    },
+    {
+      "station": "BHET",
+      "avg_delay": 46.56,
+      "std_delay": 28.7,
+      "count": 30,
+      "min_delay": 0.6,
+      "max_delay": 114.0
+    },
+    {
+      "station": "SCH",
+      "avg_delay": 44.94,
+      "std_delay": 29.24,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 116.7
+    },
+    {
+      "station": "MRL",
+      "avg_delay": 44.92,
+      "std_delay": 29.54,
+      "count": 30,
+      "min_delay": 0.7,
+      "max_delay": 120.2
+    },
+    {
+      "station": "VDH",
+      "avg_delay": 44.74,
+      "std_delay": 28.82,
+      "count": 30,
+      "min_delay": 5.1,
+      "max_delay": 110.4
+    },
+    {
+      "station": "NVS",
+      "avg_delay": 44.58,
+      "std_delay": 28.82,
+      "count": 30,
+      "min_delay": 3.4,
+      "max_delay": 113.3
+    },
+    {
+      "station": "ACL",
+      "avg_delay": 43.24,
+      "std_delay": 29.42,
+      "count": 30,
+      "min_delay": 2.7,
+      "max_delay": 107.6
+    },
+    {
+      "station": "AML",
+      "avg_delay": 42.71,
+      "std_delay": 28.57,
+      "count": 30,
+      "min_delay": 1.3,
+      "max_delay": 107.2
+    },
+    {
+      "station": "JRS",
+      "avg_delay": 42.16,
+      "std_delay": 27.85,
+      "count": 30,
+      "min_delay": 2.9,
+      "max_delay": 109.1
+    },
+    {
+      "station": "BIM",
+      "avg_delay": 42.03,
+      "std_delay": 28.26,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 112.9
+    },
+    {
+      "station": "BL",
+      "avg_delay": 41.25,
+      "std_delay": 26.97,
+      "count": 30,
+      "min_delay": 1.8,
+      "max_delay": 109.0
+    },
+    {
+      "station": "DGI",
+      "avg_delay": 41.23,
+      "std_delay": 27.02,
+      "count": 30,
+      "min_delay": 3.8,
+      "max_delay": 107.2
+    },
+    {
+      "station": "ATUL",
+      "avg_delay": 40.71,
+      "std_delay": 26.56,
+      "count": 30,
+      "min_delay": 2.1,
+      "max_delay": 104.8
+    },
+    {
+      "station": "PAD",
+      "avg_delay": 39.87,
+      "std_delay": 26.29,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 104.4
+    },
+    {
+      "station": "UVD",
+      "avg_delay": 38.87,
+      "std_delay": 25.17,
+      "count": 30,
+      "min_delay": 0.2,
+      "max_delay": 100.1
+    },
+    {
+      "station": "VAPI",
+      "avg_delay": 38.4,
+      "std_delay": 25.02,
+      "count": 30,
+      "min_delay": 2.6,
+      "max_delay": 101.2
+    },
+    {
+      "station": "KEB",
+      "avg_delay": 36.55,
+      "std_delay": 25.33,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 104.0
+    },
+    {
+      "station": "BLD",
+      "avg_delay": 35.65,
+      "std_delay": 24.84,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 100.8
+    },
+    {
+      "station": "SJN",
+      "avg_delay": 35.35,
+      "std_delay": 24.28,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 98.7
+    },
+    {
+      "station": "BRRD",
+      "avg_delay": 34.97,
+      "std_delay": 24.7,
+      "count": 30,
+      "min_delay": 2.5,
+      "max_delay": 92.8
+    },
+    {
+      "station": "UBR",
+      "avg_delay": 34.43,
+      "std_delay": 24.44,
+      "count": 30,
+      "min_delay": 1.7,
+      "max_delay": 93.6
+    },
+    {
+      "station": "GVD",
+      "avg_delay": 34.35,
+      "std_delay": 24.89,
+      "count": 30,
+      "min_delay": 1.5,
+      "max_delay": 93.3
+    },
+    {
+      "station": "VGN",
+      "avg_delay": 34.21,
+      "std_delay": 22.58,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 87.5
+    },
+    {
+      "station": "BOR",
+      "avg_delay": 34.14,
+      "std_delay": 21.63,
+      "count": 30,
+      "min_delay": 1.0,
+      "max_delay": 86.8
+    },
+    {
+      "station": "DRD",
+      "avg_delay": 33.77,
+      "std_delay": 23.74,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 90.7
+    },
+    {
+      "station": "UOI",
+      "avg_delay": 32.45,
+      "std_delay": 21.04,
+      "count": 30,
+      "min_delay": 2.4,
+      "max_delay": 89.4
+    },
+    {
+      "station": "KLV",
+      "avg_delay": 32.2,
+      "std_delay": 20.65,
+      "count": 30,
+      "min_delay": 0.4,
+      "max_delay": 86.5
+    },
+    {
+      "station": "PLG",
+      "avg_delay": 31.84,
+      "std_delay": 20.71,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 87.7
+    },
+    {
+      "station": "SAH",
+      "avg_delay": 30.96,
+      "std_delay": 20.89,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 82.5
+    },
+    {
+      "station": "VTN",
+      "avg_delay": 30.64,
+      "std_delay": 20.42,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 81.2
+    },
+    {
+      "station": "VR",
+      "avg_delay": 29.78,
+      "std_delay": 20.07,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 76.8
+    },
+    {
+      "station": "NSP",
+      "avg_delay": 28.34,
+      "std_delay": 18.87,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 75.8
+    },
+    {
+      "station": "BSR",
+      "avg_delay": 27.05,
+      "std_delay": 18.55,
+      "count": 30,
+      "min_delay": 1.1,
+      "max_delay": 72.3
+    },
+    {
+      "station": "NIG",
+      "avg_delay": 24.85,
+      "std_delay": 17.55,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 67.9
+    },
+    {
+      "station": "BYR",
+      "avg_delay": 24.03,
+      "std_delay": 17.16,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 60.9
+    },
+    {
+      "station": "MIRA",
+      "avg_delay": 21.86,
+      "std_delay": 15.88,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 56.6
+    },
+    {
+      "station": "DIC",
+      "avg_delay": 21.71,
+      "std_delay": 16.07,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 57.4
+    },
+    {
+      "station": "KILE",
+      "avg_delay": 21.04,
+      "std_delay": 15.7,
+      "count": 30,
+      "min_delay": 0.4,
+      "max_delay": 52.9
+    },
+    {
+      "station": "MDD",
+      "avg_delay": 20.97,
+      "std_delay": 15.75,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 55.7
+    },
+    {
+      "station": "BVI",
+      "avg_delay": 20.91,
+      "std_delay": 15.92,
+      "count": 30,
+      "min_delay": 0.2,
+      "max_delay": 55.5
+    },
+    {
+      "station": "GMN",
+      "avg_delay": 20.14,
+      "std_delay": 14.39,
+      "count": 30,
+      "min_delay": 2.2,
+      "max_delay": 53.4
+    },
+    {
+      "station": "JOS",
+      "avg_delay": 18.82,
+      "std_delay": 14.4,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 48.9
+    },
+    {
+      "station": "VLP",
+      "avg_delay": 18.12,
+      "std_delay": 13.57,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 47.1
+    },
+    {
+      "station": "ADH",
+      "avg_delay": 18.03,
+      "std_delay": 13.94,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 47.0
+    },
+    {
+      "station": "STC",
+      "avg_delay": 16.97,
+      "std_delay": 13.62,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 49.2
+    },
+    {
+      "station": "KHAR",
+      "avg_delay": 15.08,
+      "std_delay": 12.64,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 46.8
+    },
+    {
+      "station": "BDTS",
+      "avg_delay": 14.29,
+      "std_delay": 12.22,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 47.4
+    },
+    {
+      "station": "MM",
+      "avg_delay": 13.59,
+      "std_delay": 10.74,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 41.2
+    },
+    {
+      "station": "BA",
+      "avg_delay": 13.52,
+      "std_delay": 11.9,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 47.9
+    },
+    {
+      "station": "MRU",
+      "avg_delay": 11.39,
+      "std_delay": 9.51,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 34.8
+    },
+    {
+      "station": "DDR",
+      "avg_delay": 9.33,
+      "std_delay": 8.61,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 34.8
+    },
+    {
+      "station": "EPR",
+      "avg_delay": 8.83,
+      "std_delay": 8.32,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 33.4
+    },
+    {
+      "station": "PL",
+      "avg_delay": 7.47,
+      "std_delay": 8.1,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 34.2
+    },
+    {
+      "station": "MX",
+      "avg_delay": 6.92,
+      "std_delay": 7.85,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 36.4
+    },
+    {
+      "station": "BCT",
+      "avg_delay": 0.0,
+      "std_delay": 0.0,
+      "count": 30,
+      "min_delay": 0.0,
+      "max_delay": 0.0
+    }
+  ],
+  "delay_by_day": [],
+  "delay_over_time": [
+    {
+      "date": "2026-07-28",
+      "avg_delay": 86.62
+    },
+    {
+      "date": "2026-07-29",
+      "avg_delay": 33.98
+    },
+    {
+      "date": "2026-07-30",
+      "avg_delay": 36.67
+    },
+    {
+      "date": "2026-07-31",
+      "avg_delay": 79.52
+    },
+    {
+      "date": "2026-08-01",
+      "avg_delay": 84.17
+    },
+    {
+      "date": "2026-08-02",
+      "avg_delay": 62.99
+    },
+    {
+      "date": "2026-08-03",
+      "avg_delay": 83.48
+    },
+    {
+      "date": "2026-08-04",
+      "avg_delay": 47.97
+    },
+    {
+      "date": "2026-08-05",
+      "avg_delay": 87.55
+    },
+    {
+      "date": "2026-08-06",
+      "avg_delay": 132.41
+    },
+    {
+      "date": "2026-08-07",
+      "avg_delay": 81.82
+    },
+    {
+      "date": "2026-08-08",
+      "avg_delay": 106.74
+    },
+    {
+      "date": "2026-08-09",
+      "avg_delay": 48.98
+    },
+    {
+      "date": "2026-08-10",
+      "avg_delay": 97.93
+    },
+    {
+      "date": "2026-08-11",
+      "avg_delay": 106.28
+    },
+    {
+      "date": "2026-08-12",
+      "avg_delay": 72.01
+    },
+    {
+      "date": "2026-08-13",
+      "avg_delay": 115.69
+    },
+    {
+      "date": "2026-08-14",
+      "avg_delay": 65.43
+    },
+    {
+      "date": "2026-08-15",
+      "avg_delay": 80.31
+    },
+    {
+      "date": "2026-08-16",
+      "avg_delay": 96.37
+    },
+    {
+      "date": "2026-08-17",
+      "avg_delay": 131.15
+    },
+    {
+      "date": "2026-08-18",
+      "avg_delay": 94.95
+    },
+    {
+      "date": "2026-08-19",
+      "avg_delay": 64.16
+    },
+    {
+      "date": "2026-08-20",
+      "avg_delay": 114.59
+    },
+    {
+      "date": "2026-08-21",
+      "avg_delay": 52.8
+    },
+    {
+      "date": "2026-08-22",
+      "avg_delay": 151.47
+    },
+    {
+      "date": "2026-08-23",
+      "avg_delay": 58.87
+    },
+    {
+      "date": "2026-08-24",
+      "avg_delay": 67.99
+    },
+    {
+      "date": "2026-08-25",
+      "avg_delay": 50.35
+    },
+    {
+      "date": "2026-08-26",
+      "avg_delay": 46.04
+    }
+  ],
+  "delay_distribution": {
+    "bins": [
+      0.0,
+      9.6,
+      19.2,
+      28.8,
+      38.4,
+      48.1,
+      57.7,
+      67.3,
+      76.9,
+      86.5,
+      96.1,
+      105.7,
+      115.3,
+      124.9,
+      134.5,
+      144.2,
+      153.8,
+      163.4,
+      173.0,
+      182.6,
+      192.2,
+      201.8,
+      211.4,
+      221.0,
+      230.6,
+      240.3,
+      249.9,
+      259.5,
+      269.1,
+      278.7,
+      288.3
+    ],
+    "counts": [
+      417,
+      376,
+      333,
+      335,
+      405,
+      466,
+      412,
+      321,
+      402,
+      437,
+      283,
+      282,
+      259,
+      311,
+      239,
+      178,
+      104,
+      113,
+      132,
+      105,
+      52,
+      32,
+      23,
+      5,
+      9,
+      7,
+      4,
+      2,
+      5,
+      11
+    ]
+  },
+  "worst_sections": [
+    {
+      "from": "BCT",
+      "to": "MX",
+      "avg_change": 6.92,
+      "count": 30
+    },
+    {
+      "from": "ANAS",
+      "to": "MGN",
+      "avg_change": 2.71,
+      "count": 30
+    },
+    {
+      "from": "BRC",
+      "to": "CYI",
+      "avg_change": 2.29,
+      "count": 30
+    },
+    {
+      "from": "MRU",
+      "to": "MM",
+      "avg_change": 2.2,
+      "count": 30
+    },
+    {
+      "from": "NIG",
+      "to": "BSR",
+      "avg_change": 2.19,
+      "count": 30
+    },
+    {
+      "from": "MIRA",
+      "to": "BYR",
+      "avg_change": 2.17,
+      "count": 30
+    },
+    {
+      "from": "CMU",
+      "to": "NKH",
+      "avg_change": 2.06,
+      "count": 30
+    },
+    {
+      "from": "DDR",
+      "to": "MRU",
+      "avg_change": 2.06,
+      "count": 30
+    },
+    {
+      "from": "BRNA",
+      "to": "NAD",
+      "avg_change": 1.94,
+      "count": 30
+    },
+    {
+      "from": "KHAR",
+      "to": "STC",
+      "avg_change": 1.88,
+      "count": 30
+    }
+  ],
+  "best_sections": [
+    {
+      "from": "RKR",
+      "to": "JJA",
+      "avg_change": -0.9,
+      "count": 30
+    },
+    {
+      "from": "CYI",
+      "to": "PIO",
+      "avg_change": -0.78,
+      "count": 30
+    },
+    {
+      "from": "RDE",
+      "to": "PWL",
+      "avg_change": -0.68,
+      "count": 30
+    },
+    {
+      "from": "BRRD",
+      "to": "UBR",
+      "avg_change": -0.54,
+      "count": 30
+    },
+    {
+      "from": "GKB",
+      "to": "LBN",
+      "avg_change": -0.48,
+      "count": 30
+    },
+    {
+      "from": "NAD",
+      "to": "RLK",
+      "avg_change": -0.48,
+      "count": 30
+    },
+    {
+      "from": "VGN",
+      "to": "DRD",
+      "avg_change": -0.45,
+      "count": 30
+    },
+    {
+      "from": "LBN",
+      "to": "LKE",
+      "avg_change": -0.44,
+      "count": 30
+    },
+    {
+      "from": "BXN",
+      "to": "KEV",
+      "avg_change": -0.36,
+      "count": 30
+    },
+    {
+      "from": "KLV",
+      "to": "PLG",
+      "avg_change": -0.35,
+      "count": 30
+    }
+  ]
+}

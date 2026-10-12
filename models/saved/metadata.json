@@ -1,0 +1,76 @@
+{
+  "model_version": "1.0.0",
+  "feature_cols": [
+    "sched_arr_hour",
+    "sched_dep_hour",
+    "day_of_week",
+    "month",
+    "distance_from_source",
+    "distance_remaining",
+    "progress_fraction",
+    "segment_distance",
+    "current_arrival_delay",
+    "current_departure_delay",
+    "prev_station_delay",
+    "prev_2_station_delay",
+    "delay_trend",
+    "delay_trend2",
+    "dwell_time",
+    "sched_dwell_time",
+    "sched_section_travel",
+    "hist_avg_train_delay",
+    "hist_median_train_delay",
+    "hist_std_train_delay",
+    "hist_on_time_rate_train",
+    "hist_avg_station_delay",
+    "hist_std_station_delay",
+    "hist_avg_section_delay_chg",
+    "hist_std_section_delay_chg",
+    "train_number_enc",
+    "station_code_enc",
+    "next_station_code_enc"
+  ],
+  "target": "next_station_delay_change",
+  "best_xgb_params": {
+    "n_estimators": 500,
+    "max_depth": 5,
+    "learning_rate": 0.03,
+    "subsample": 0.9,
+    "colsample_bytree": 0.8,
+    "reg_alpha": 0.05,
+    "reg_lambda": 1.5
+  },
+  "val_metrics": {
+    "mae": 2.6781605255143837,
+    "rmse": 3.274637323247447,
+    "r2": 0.05494480317258588
+  },
+  "test_metrics": {
+    "mae": 2.69972666722618,
+    "rmse": 3.3313068177015843,
+    "r2": 0.05134014709335144
+  },
+  "baseline_results": {
+    "naive_zero": {
+      "mae": 2.755612745098039,
+      "rmse": 3.4302128642575007,
+      "r2": -0.03698602193672795
+    },
+    "naive_mean": {
+      "mae": 2.728607536478644,
+      "rmse": 3.3684969290955356,
+      "r2": -7.071777896827669e-06
+    },
+    "linear_regression": {
+      "mae": 2.678511137062124,
+      "rmse": 3.273367146072622,
+      "r2": 0.055677803267766834
+    },
+    "random_forest": {
+      "mae": 2.6858485992370933,
+      "rmse": 3.2818616301797277,
+      "r2": 0.05077035623429127
+    }
+  },
+  "best_model": "xgboost"
+}
