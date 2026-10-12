@@ -1,0 +1,335 @@
+/* static/css/indirect.css - RailSync AI Indirect Itinerary Ranking UI */
+
+:root {
+  --primary: #0F172A;
+  --secondary: #1E293B;
+  --accent: #F59E0B;
+  --accent-hover: #D97706;
+  --blue: #2563EB;
+  --blue-light: #EFF6FF;
+  --green: #10B981;
+  --green-light: #ECFDF5;
+  --purple: #8B5CF6;
+  --purple-light: #F5F3FF;
+  --red: #EF4444;
+  --bg-gradient: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  --card-bg: #FFFFFF;
+  --radius: 12px;
+  --radius-lg: 16px;
+  --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+}
+
+.indirect-hdr {
+  background: var(--bg-gradient);
+  color: white;
+  padding: 48px 24px 36px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.indirect-hdr h1 {
+  font-size: 2.25rem;
+  font-weight: 800;
+  margin: 0 0 10px;
+  letter-spacing: -0.02em;
+}
+
+.indirect-hdr h1 span {
+  color: var(--accent);
+}
+
+.indirect-hdr p {
+  font-size: 1.05rem;
+  color: #94A3B8;
+  max-width: 680px;
+  margin: 0 auto;
+}
+
+.indirect-container {
+  max-width: 1100px;
+  margin: -24px auto 60px;
+  padding: 0 20px;
+  position: relative;
+  z-index: 10;
+}
+
+.search-card {
+  background: var(--card-bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  padding: 28px 32px;
+  border: 1px solid #E2E8F0;
+  margin-bottom: 32px;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  align-items: flex-end;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group select,
+.form-group input[type="number"],
+.form-group input[type="date"] {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1.5px solid #CBD5E1;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #0F172A;
+  background: #F8FAFC;
+  transition: all 0.2s ease;
+}
+
+.form-group select:focus,
+.form-group input:focus {
+  outline: none;
+  border-color: var(--blue);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.slider-group {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .slider-group { grid-column: span 1; }
+}
+
+.slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #64748B;
+  margin-top: 4px;
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--blue);
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-search {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35);
+}
+
+.btn-search:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45);
+}
+
+/* Results section */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.results-title {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.itinerary-card {
+  background: white;
+  border-radius: var(--radius-lg);
+  border: 1px solid #E2E8F0;
+  box-shadow: var(--shadow);
+  margin-bottom: 20px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+
+.itinerary-card:hover {
+  border-color: #CBD5E1;
+}
+
+.itinerary-head {
+  padding: 20px 24px;
+  background: #F8FAFC;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.itinerary-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itinerary-title-wrap h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #0F172A;
+}
+
+.rank-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 5px 12px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: white;
+}
+
+.rank-badge.Recommended { background: var(--green); }
+.rank-badge.Fastest { background: var(--accent); }
+.rank-badge.MostReliable { background: var(--purple); }
+.rank-badge.Balanced { background: var(--blue); }
+
+.itinerary-metrics {
+  display: flex;
+  gap: 24px;
+  padding: 18px 24px;
+  border-bottom: 1px solid #F1F5F9;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748B;
+  text-transform: uppercase;
+}
+
+.metric-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #0F172A;
+}
+
+.rel-bar-container {
+  flex: 1;
+  min-width: 180px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.rel-bar-wrap {
+  height: 8px;
+  background: #E2E8F0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.rel-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #10B981 0%, #059669 100%);
+  border-radius: 999px;
+  transition: width 0.6s ease;
+}
+
+.legs-timeline {
+  padding: 20px 24px;
+}
+
+.leg-card {
+  background: #F8FAFC;
+  border: 1px solid #E2E8F0;
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 14px;
+}
+
+.leg-card:last-child {
+  margin-bottom: 0;
+}
+
+.leg-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #1E293B;
+  margin-bottom: 10px;
+}
+
+.leg-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #475569;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.transfer-banner {
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin: 12px 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #92400E;
+  font-weight: 600;
+}
+
+.p10-percentiles {
+  font-size: 0.82rem;
+  color: #64748B;
+  padding: 12px 24px;
+  background: #FAF5FF;
+  border-top: 1px solid #F3E8FF;
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}

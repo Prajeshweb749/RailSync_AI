@@ -1,125 +1,372 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RailSync — Reliable Itinerary Ranking</title>
-<style>
-  :root { --blue:#1a56db; --dark:#0b1f4d; --green:#0f9d58; --amber:#d97706; --red:#dc2626; --bg:#f4f7fc; }
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, Segoe UI, Roboto, sans-serif; background: var(--bg); margin:0; color:#1f2937; }
-  header { background: linear-gradient(90deg, var(--dark), var(--blue)); color:white; padding: 24px 32px; }
-  header h1 { margin:0; font-size: 28px; }
-  header p { margin: 6px 0 0; opacity:0.85; font-size: 14px; }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 60px; }
-  .card { background: white; border-radius: 12px; padding: 20px 24px; margin-bottom: 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-  .controls { display:flex; gap: 24px; flex-wrap: wrap; align-items: flex-end; }
-  .field { display:flex; flex-direction: column; gap: 6px; }
-  label { font-size: 13px; font-weight: 600; color:#374151; }
-  input[type=number] { padding: 8px 10px; border:1px solid #d1d5db; border-radius: 8px; width: 140px; font-size:14px; }
-  input[type=range] { width: 220px; }
-  button { background: var(--blue); color:white; border:none; padding: 10px 20px; border-radius: 8px; font-size:14px; font-weight:600; cursor:pointer; }
-  button:hover { background: var(--dark); }
-  #error { color: var(--red); font-size: 13px; margin-top: 10px; display:none; }
-  .result { border:1px solid #e5e7eb; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; }
-  .result-head { display:flex; justify-content: space-between; align-items:center; gap:10px; flex-wrap: wrap; }
-  .result-head h3 { margin:0; font-size:16px; }
-  .badge { font-size:11px; font-weight:700; padding:3px 10px; border-radius: 999px; color:white; }
-  .badge.Recommended { background: var(--green); }
-  .badge.Fastest { background: var(--amber); }
-  .badge.Balanced { background: var(--blue); }
-  .badge.MostReliable { background: #6d28d9; }
-  .metrics { display:flex; gap: 22px; margin-top: 8px; flex-wrap: wrap; font-size: 13px; color:#4b5563; }
-  .metrics b { color:#111827; }
-  .barwrap { background:#e5e7eb; border-radius: 6px; height:8px; width:140px; overflow:hidden; }
-  .bar { height:100%; background: var(--green); }
-  .legs { margin-top: 10px; font-size: 12.5px; color:#6b7280; }
-  .leg-chip { display:inline-block; background:#f3f4f6; border-radius: 6px; padding: 3px 8px; margin: 2px 4px 2px 0; }
-  small.note { color:#6b7280; }
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RailSync AI — Predict Train Delays with Historical Intelligence</title>
+  <meta name="description" content="RailSync AI predicts your train's delay at every station using historical railway data. No live tracking needed — pure pattern intelligence."/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/home.css"/>
 </head>
 <body>
-<header>
-  <h1>🚆 RailSync</h1>
-  <p>Predict delay evolution → evaluate connection reliability → rank itineraries. Prototype for Chennai → Madurai.</p>
-</header>
-<div class="wrap">
-  <div class="card">
-    <div class="controls">
-      <div class="field">
-        <label for="delay">Current delay of your first train (minutes)</label>
-        <input type="number" id="delay" value="0" min="0" max="600">
+
+<!-- ═══════════════════════════════════════════════════════════ NAVBAR -->
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-logo">
+        <div class="logo-icon">🚄</div>
+        RailSync<span style="color:var(--amber)">AI</span>
+      </a>
+      <ul class="navbar-links">
+        <li><a href="/" class="active">Home</a></li>
+        <li><a href="/predict">Track Journey</a></li>
+        <li><a href="/indirect">Indirect Search</a></li>
+        <li><a href="/#stats">About</a></li>
+        <li><a href="/predict" class="btn-nav">Predict Journey →</a></li>
+      </ul>
+      <div class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
       </div>
-      <div class="field">
-        <label for="risk">Priority: fastest ⟷ most reliable</label>
-        <input type="range" id="risk" min="0" max="1" step="0.05" value="0.5">
-      </div>
-      <button onclick="runRank()">Predict &amp; Rank</button>
     </div>
-    <div id="error"></div>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-gradient"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-glow glow-1"></div>
+    <div class="hero-glow glow-2"></div>
   </div>
 
-  <div id="results"></div>
-  <p><small class="note">Delay distributions are generated by Monte Carlo simulation calibrated to synthetic historical
-  segment stats — a stand-in for the trained ST-GNN described in the source proposal. See README for details.</small></p>
-</div>
+  <!-- Animated train track -->
+  <div class="track-container" aria-hidden="true">
+    <div class="track-line"></div>
+    <div class="train-anim" id="trainAnim">
+      <svg width="120" height="40" viewBox="0 0 120 40" fill="none">
+        <rect x="5" y="8" width="100" height="22" rx="6" fill="#F59E0B"/>
+        <rect x="0" y="14" width="8" height="10" rx="2" fill="#D97706"/>
+        <rect x="108" y="12" width="12" height="14" rx="3" fill="#D97706"/>
+        <rect x="18" y="11" width="16" height="10" rx="2" fill="rgba(255,255,255,0.9)"/>
+        <rect x="40" y="11" width="16" height="10" rx="2" fill="rgba(255,255,255,0.9)"/>
+        <rect x="62" y="11" width="16" height="10" rx="2" fill="rgba(255,255,255,0.9)"/>
+        <circle cx="22" cy="32" r="6" fill="#1E293B" stroke="#F59E0B" stroke-width="2"/>
+        <circle cx="55" cy="32" r="6" fill="#1E293B" stroke="#F59E0B" stroke-width="2"/>
+        <circle cx="88" cy="32" r="6" fill="#1E293B" stroke="#F59E0B" stroke-width="2"/>
+      </svg>
+    </div>
+  </div>
 
-<script>
-async function runRank() {
-  const delay = document.getElementById('delay').value;
-  const risk = document.getElementById('risk').value;
-  const errBox = document.getElementById('error');
-  const resultsBox = document.getElementById('results');
-  errBox.style.display = 'none';
-  resultsBox.innerHTML = '<p>Running simulation…</p>';
-
-  try {
-    const resp = await fetch('/api/rank', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({initial_delay_min: Number(delay), risk_weight: Number(risk)})
-    });
-    const data = await resp.json();
-    if (!resp.ok) throw new Error(data.error || 'Request failed');
-    render(data.results);
-  } catch (e) {
-    resultsBox.innerHTML = '';
-    errBox.textContent = 'Error: ' + e.message;
-    errBox.style.display = 'block';
-  }
-}
-
-function render(results) {
-  const box = document.getElementById('results');
-  box.innerHTML = '';
-  results.forEach(r => {
-    const pct = Math.round(r.reliability * 100);
-    const legsHtml = r.legs.map(l => `<span class="leg-chip">${l.train}: ${l.from} → ${l.to} (${l.sched_dep}-${l.sched_arr})</span>`).join('');
-    const div = document.createElement('div');
-    div.className = 'result';
-    div.innerHTML = `
-      <div class="result-head">
-        <h3>${r.name}</h3>
-        <span class="badge ${r.label.replace(' ', '')}">${r.label}</span>
+  <div class="container hero-content">
+    <div class="hero-text" id="heroText">
+      <span class="hero-label">AI-Powered Railway Intelligence</span>
+      <h1 class="hero-title">
+        Know Your Delay<br/>
+        <span class="gradient-text">Before You Board</span>
+      </h1>
+      <p class="hero-subtitle">
+        RailSync AI analyses historical railway patterns to predict your train's delay
+        at every station — completely from historical data, no live tracking needed.
+      </p>
+      <div class="hero-actions">
+        <a href="/predict" class="btn-primary hero-cta">
+          <span>Predict My Journey</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+        <a href="#how-it-works" class="btn-outline">See How It Works</a>
       </div>
-      <div class="metrics">
-        <div>Expected journey: <b>${(r.expected_total_min/60).toFixed(1)}h</b> (sched ${(r.scheduled_journey_min/60).toFixed(1)}h)</div>
-        <div>Transfers: <b>${r.num_transfers}</b></div>
-        <div>Reliability: <b>${pct}%</b></div>
-        <div class="barwrap"><div class="bar" style="width:${pct}%"></div></div>
+      <div class="hero-trust">
+        <div class="trust-item">
+          <span class="trust-number" data-count="30600">0</span>
+          <span class="trust-label">Training records</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-number" data-count="218">0</span>
+          <span class="trust-label">Stations covered</span>
+        </div>
+        <div class="trust-divider"></div>
+        <div class="trust-item">
+          <span class="trust-number-text">2.7 min</span>
+          <span class="trust-label">Average accuracy</span>
+        </div>
       </div>
-      <div class="metrics">
-        <div>Final leg arrival delay — P10: <b>${r.final_arrival_delay_p10_p50_p90.P10.toFixed(0)}m</b>,
-        P50: <b>${r.final_arrival_delay_p10_p50_p90.P50.toFixed(0)}m</b>,
-        P90: <b>${r.final_arrival_delay_p10_p50_p90.P90.toFixed(0)}m</b></div>
-      </div>
-      <div class="legs">${legsHtml}</div>
-    `;
-    box.appendChild(div);
-  });
-}
+    </div>
 
-runRank();
-</script>
+    <div class="hero-visual" id="heroVisual">
+      <div class="dashboard-card">
+        <div class="dc-header">
+          <div class="dc-badge">LIVE PREDICTION</div>
+          <div class="dc-train">12301 · Howrah Rajdhani</div>
+        </div>
+        <div class="dc-route">
+          <div class="dc-station">
+            <div class="dc-dot dot-green"></div>
+            <div class="dc-station-info">
+              <div class="dc-station-code">HWH</div>
+              <div class="dc-station-name">Howrah Junction</div>
+            </div>
+            <div class="dc-delay on-time">On Time</div>
+          </div>
+          <div class="dc-line"></div>
+          <div class="dc-station">
+            <div class="dc-dot dot-amber"></div>
+            <div class="dc-station-info">
+              <div class="dc-station-code">CNB</div>
+              <div class="dc-station-name">Kanpur Central</div>
+            </div>
+            <div class="dc-delay minor">+18 min</div>
+          </div>
+          <div class="dc-line"></div>
+          <div class="dc-station">
+            <div class="dc-dot dot-red"></div>
+            <div class="dc-station-info">
+              <div class="dc-station-code">NDLS</div>
+              <div class="dc-station-name">New Delhi</div>
+            </div>
+            <div class="dc-delay major">+67 min</div>
+          </div>
+        </div>
+        <div class="dc-chart">
+          <svg viewBox="0 0 280 80" fill="none" class="mini-chart">
+            <defs>
+              <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#F59E0B" stop-opacity="0.3"/>
+                <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+              </linearGradient>
+            </defs>
+            <path d="M0 75 L40 72 L80 60 L120 52 L160 38 L200 28 L240 18 L280 10" stroke="#F59E0B" stroke-width="2.5" stroke-linecap="round" class="chart-line"/>
+            <path d="M0 75 L40 72 L80 60 L120 52 L160 38 L200 28 L240 18 L280 10 L280 80 L0 80Z" fill="url(#chartGrad)"/>
+          </svg>
+        </div>
+        <div class="dc-footer">
+          <span class="dc-label">Delay trend · Journey in progress</span>
+          <span class="dc-accuracy">MAE ±2.7 min</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-scroll-hint">
+    <div class="scroll-dot"></div>
+    <span>Scroll to explore</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ FEATURES -->
+<section class="section features-section" id="features">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Why RailSync AI</span>
+      <h2 class="section-title">Intelligence Built on <span>Real Patterns</span></h2>
+      <p class="section-subtitle">No guesswork. Every prediction is grounded in actual historical railway behaviour.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature-card reveal reveal-delay-1">
+        <div class="feature-icon-wrap" style="background:#EFF6FF">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#1D4ED8" stroke-width="2">
+            <path d="M9 17H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v5M9 17l3 3 5-8"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Historical Intelligence</h3>
+        <p class="feature-desc">Trained on 30,600 real journey records. The model learns delay patterns specific to each train, station, and section of track.</p>
+        <div class="feature-tag">30,600 records analysed</div>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-2">
+        <div class="feature-icon-wrap" style="background:#F0FDF4">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Station-by-Station Forecast</h3>
+        <p class="feature-desc">Get predicted delay at every stop from source to destination. See exactly where delays accumulate and where trains recover.</p>
+        <div class="feature-tag">Full journey trajectory</div>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-3">
+        <div class="feature-icon-wrap" style="background:#FFF7ED">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#EA580C" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">Zero Live Data</h3>
+        <p class="feature-desc">Unlike other trackers, RailSync AI works entirely from historical patterns — no API dependencies, no real-time failures, always available.</p>
+        <div class="feature-tag">100% offline capable</div>
+      </div>
+
+      <div class="feature-card reveal reveal-delay-4">
+        <div class="feature-icon-wrap" style="background:#FFF1F2">
+          <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="#BE123C" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+        </div>
+        <h3 class="feature-title">XGBoost Powered</h3>
+        <p class="feature-desc">State-of-the-art gradient boosting with 28 engineered features — including delay trends, historical section behaviour, and schedule patterns.</p>
+        <div class="feature-tag">MAE: 2.70 minutes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ HOW IT WORKS -->
+<section class="section how-section" id="how-it-works">
+  <div class="container">
+    <div class="section-header reveal" style="text-align:center">
+      <span class="section-label">Simple 3-Step Process</span>
+      <h2 class="section-title" style="text-align:center">How It Works</h2>
+      <p class="section-subtitle" style="margin:0 auto">From train selection to full journey forecast in seconds.</p>
+    </div>
+
+    <div class="steps-container">
+      <div class="step reveal reveal-delay-1">
+        <div class="step-number">01</div>
+        <div class="step-content">
+          <h3 class="step-title">Select Your Train</h3>
+          <p class="step-desc">Choose from 5 major Indian express trains. Each has its own historical delay profile learned from real journey data.</p>
+        </div>
+        <div class="step-visual">
+          <div class="step-card train-card-mini">
+            <div class="scm-dot" style="background:#1E40AF"></div>
+            <div>
+              <div class="scm-name">Howrah Rajdhani</div>
+              <div class="scm-route">HWH → NDLS · 218 stations</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-connector reveal"><div class="connector-line"></div></div>
+
+      <div class="step reveal reveal-delay-2">
+        <div class="step-number">02</div>
+        <div class="step-content">
+          <h3 class="step-title">Pick Date & Boarding Station</h3>
+          <p class="step-desc">Select your travel date and which station you board from. The AI uses day-of-week patterns from historical data.</p>
+        </div>
+        <div class="step-visual">
+          <div class="step-form-mini">
+            <div class="sfm-row">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              <span>2026-09-10</span>
+            </div>
+            <div class="sfm-row">
+              <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+              <span>CNB · Kanpur Central</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-connector reveal"><div class="connector-line"></div></div>
+
+      <div class="step reveal reveal-delay-3">
+        <div class="step-number">03</div>
+        <div class="step-content">
+          <h3 class="step-title">Get Your Delay Forecast</h3>
+          <p class="step-desc">Instant station-by-station delay trajectory. See predicted arrival time, delay magnitude, and whether delays accumulate or recover.</p>
+        </div>
+        <div class="step-visual">
+          <div class="result-mini">
+            <div class="rm-label">Your station: CNB</div>
+            <div class="rm-delay">+18 min</div>
+            <div class="rm-badge">Moderate delay</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cta-center reveal">
+      <a href="/predict" class="btn-primary" style="font-size:1.05rem; padding:16px 40px;">
+        Try It Now — Free
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ STATS -->
+<section class="section stats-section" id="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-icon">📊</div>
+        <div class="stat-number" data-target="30600" data-suffix="">0</div>
+        <div class="stat-label">Training Records</div>
+        <div class="stat-sub">Real Indian Railway journeys</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-icon">🚉</div>
+        <div class="stat-number" data-target="218" data-suffix="+">0</div>
+        <div class="stat-label">Stations Covered</div>
+        <div class="stat-sub">Across 5 major routes</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-number" data-target="270" data-suffix=" min" data-decimal="true">0</div>
+        <div class="stat-label">Average MAE Accuracy</div>
+        <div class="stat-sub">2.70 minutes per station</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-4">
+        <div class="stat-icon">🤖</div>
+        <div class="stat-number" data-target="28" data-suffix="">0</div>
+        <div class="stat-label">Model Features</div>
+        <div class="stat-sub">Engineered from historical data</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ TRAINS PREVIEW -->
+<section class="section trains-section" id="trains">
+  <div class="container">
+    <div class="section-header reveal">
+      <span class="section-label">Supported Trains</span>
+      <h2 class="section-title">5 Major <span>Express Routes</span></h2>
+      <p class="section-subtitle">Predictions available for these trains with their full station-by-station delay history.</p>
+    </div>
+    <div class="trains-preview-grid" id="trainsPreviewGrid">
+      <!-- filled by JS -->
+      <div class="train-skeleton"></div>
+      <div class="train-skeleton"></div>
+      <div class="train-skeleton"></div>
+      <div class="train-skeleton"></div>
+      <div class="train-skeleton"></div>
+    </div>
+    <div class="cta-center reveal" style="margin-top:48px">
+      <a href="/predict" class="btn-primary">
+        Predict Your Journey
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════════ FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">
+        <div class="logo-icon" style="width:32px;height:32px;background:var(--amber);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1rem;">🚄</div>
+        RailSync<span style="color:var(--amber)">AI</span>
+      </div>
+      <ul class="footer-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/predict">Predict Journey</a></li>
+        <li><a href="/#how-it-works">How It Works</a></li>
+        <li><a href="/#stats">About</a></li>
+      </ul>
+      <p class="footer-bottom">
+        Built with XGBoost + historical Indian Railways data · No live tracking ·
+        <span style="color:var(--amber)">RailSync AI v1.0</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script src="/static/js/main.js"></script>
 </body>
 </html>

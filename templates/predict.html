@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Track Your Train — RailSync AI</title>
+  <meta name="description" content="Live train tracking with AI delay predictions. Select your train, boarding and destination station to get real-time ETA forecasts."/>
+  <link rel="stylesheet" href="/static/css/style.css"/>
+  <link rel="stylesheet" href="/static/css/predict.css"/>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════ NAVBAR -->
+<nav class="pnav" id="pnav">
+  <div class="pnav-inner">
+    <a href="/" class="pnav-logo">
+      <div class="pnav-logo-box">🚄</div>
+      RailSync<span>AI</span>
+    </a>
+    <ul class="pnav-links">
+      <li><a href="/" class="pnav-lnk">Home</a></li>
+      <li><a href="/predict" class="active pnav-lnk">Track Journey</a></li>
+      <li><a href="/indirect" class="pnav-lnk">Indirect Search</a></li>
+      <li><a href="/indirect" class="cta">Indirect Search →</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════ PAGE HEADER -->
+<header class="page-hdr">
+  <div class="page-hdr-inner">
+
+    <!-- Step breadcrumb -->
+    <div class="breadcrumb">
+      <div class="bc-step active" id="bc1">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12h6M12 9v6"/></svg>
+        Select Train
+      </div>
+      <span class="bc-arr">›</span>
+      <div class="bc-step" id="bc2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+        Your Journey
+      </div>
+      <span class="bc-arr">›</span>
+      <div class="bc-step" id="bc3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Live Tracking
+      </div>
+    </div>
+
+    <h1>Track Your <span>Train Live</span></h1>
+    <p class="page-hdr-sub">Real-time position from the RailRadar network, combined with AI-powered delay predictions at every upcoming station.</p>
+  </div>
+</header>
+
+<!-- ══════════════════════════════════════════════════ APP LAYOUT -->
+<div class="app-layout">
+
+  <!-- ════════════════════════════ WIZARD PANEL (left) -->
+  <aside class="wizard-panel" id="wizardPanel">
+
+    <!-- ── Step 1: Train Selection ────────────────── -->
+    <div class="wizard-step active" id="step1">
+      <div class="step-head">
+        <div class="step-badge">1</div>
+        <div class="step-head-txt">
+          <h2>Select Your Train</h2>
+          <p>Choose from 5,200+ Indian Railway trains operating today</p>
+        </div>
+      </div>
+      <div class="step-body">
+        <input type="text" id="trainSearchInput" placeholder="🔍 Search 5,200+ trains by number or name (e.g. 12301, Rajdhani)..." oninput="onTrainSearch(this.value)" style="width:100%; padding:12px 16px; border-radius:12px; border:1.5px solid rgba(29,53,87,0.2); background:white; margin-bottom:16px; font-size:0.9rem; font-weight:500; outline:none; box-shadow:0 2px 4px rgba(0,0,0,0.03);"/>
+        <div class="train-grid" id="trainGrid">
+          <!-- Skeletons while loading -->
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+          <div class="skeleton skel-card"></div>
+        </div>
+        <button class="btn-primary" id="btnStep1Next" disabled>
+          <span>Continue to Journey Details</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Step 2: Journey Details ────────────────── -->
+    <div class="wizard-step" id="step2">
+      <div class="step-head">
+        <div class="step-badge">2</div>
+        <div class="step-head-txt">
+          <h2>Your Journey</h2>
+          <p>Pick boarding &amp; destination</p>
+        </div>
+      </div>
+      <div class="step-body">
+
+        <!-- Selected train summary pill -->
+        <div class="sel-train-pill" id="selTrainPill">
+          <div class="stp-icon" id="stpIcon">🚄</div>
+          <div class="stp-txt">
+            <div class="stp-num" id="stpNum">—</div>
+            <div class="stp-name" id="stpName">—</div>
+          </div>
+        </div>
+
+        <!-- ── Multi-Day Journey Instance Disambiguation (e.g. Train 13006) ── -->
+        <div class="form-grp" id="journeyInstanceGrp" style="display:none; margin: 16px 0;">
+          <label class="form-lbl">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            Select Running Train Instance
+          </label>
+          <div style="font-size:0.78rem; color:var(--navy-60); margin-bottom:8px; line-height:1.4;">
+            This train spans multiple calendar days with simultaneous running instances. Select which train you want to view:
+          </div>
+          <div id="journeyInstanceList" class="journey-instance-list" style="display:flex; flex-direction:column; gap:8px;">
+            <!-- Populated dynamically via JS -->
+          </div>
+        </div>
+
+        <!-- Route visual -->
+        <div class="route-vis">
+          <div class="rv-pt">
+            <div class="rv-dot b"></div>
+            <div class="rv-lbl">Board</div>
+          </div>
+          <div class="rv-line"></div>
+          <div class="rv-pt">
+            <div class="rv-dot d"></div>
+            <div class="rv-lbl">Exit</div>
+          </div>
+        </div>
+
+        <!-- Boarding station -->
+        <div class="form-grp">
+          <label class="form-lbl" for="boardingSel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="10" r="3"/><path d="M12 2C8.13 2 5 5.13 5 10c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/></svg>
+            Boarding Station
+          </label>
+          <div id="boardingLoadWrap">
+            <div class="skeleton" style="height:46px; border-radius:12px;"></div>
+          </div>
+          <div id="boardingSelWrap" class="hidden">
+            <select class="form-sel" id="boardingSel">
+              <option value="">Select where you board...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Destination station -->
+        <div class="form-grp">
+          <label class="form-lbl" for="destSel">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Destination Station
+          </label>
+          <div id="destLoadWrap">
+            <div class="skeleton" style="height:46px; border-radius:12px;"></div>
+          </div>
+          <div id="destSelWrap" class="hidden">
+            <select class="form-sel" id="destSel" disabled>
+              <option value="">Select your destination...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- CTA -->
+        <button class="btn-primary" id="btnPredict" disabled onclick="runPrediction()">
+          <span class="btn-icon">🛰</span>
+          <span id="predictBtnTxt">Track &amp; Predict</span>
+        </button>
+
+        <button class="btn-back" onclick="goToStep(1)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Change Train
+        </button>
+
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ════════════════════════════ RESULTS AREA (right) -->
+  <main class="results-area" id="resultsArea">
+
+    <!-- Empty State -->
+    <div class="state-empty" id="stateEmpty">
+      <span class="empty-anim">🚂</span>
+      <h3 class="empty-title">Select your train to begin</h3>
+      <p class="empty-desc">Choose one of the 5 tracked trains, pick your boarding and destination station, and we'll show you a live-updated journey forecast powered by AI.</p>
+    </div>
+
+    <!-- Loading State (creative train loader) -->
+    <div class="state-loading hidden" id="stateLoading">
+      <div class="loader-stages">
+        <div class="loader-stage" id="ls1">
+          <span class="ls-icon">🛰</span>
+          <div class="ls-dot"></div>
+          <span>Connecting to live railway network</span>
+        </div>
+        <div class="loader-stage" id="ls2">
+          <span class="ls-icon">📡</span>
+          <div class="ls-dot"></div>
+          <span>Fetching real-time train data</span>
+        </div>
+        <div class="loader-stage" id="ls3">
+          <span class="ls-icon">🤖</span>
+          <div class="ls-dot"></div>
+          <span>Running XGBoost AI predictions</span>
+        </div>
+      </div>
+
+      <!-- Railway track animation -->
+      <div class="loader-track-wrap">
+        <!-- Station dots -->
+        <div class="loader-stops">
+          <div class="loader-stop" id="lstop1"></div>
+          <div class="loader-stop" id="lstop2"></div>
+          <div class="loader-stop" id="lstop3"></div>
+          <div class="loader-stop" id="lstop4"></div>
+          <div class="loader-stop" id="lstop5"></div>
+        </div>
+        <!-- Sleepers -->
+        <div class="sleepers">
+          <div class="sleeper"></div><div class="sleeper"></div><div class="sleeper"></div>
+          <div class="sleeper"></div><div class="sleeper"></div><div class="sleeper"></div>
+          <div class="sleeper"></div><div class="sleeper"></div><div class="sleeper"></div>
+          <div class="sleeper"></div><div class="sleeper"></div><div class="sleeper"></div>
+          <div class="sleeper"></div><div class="sleeper"></div><div class="sleeper"></div>
+        </div>
+        <!-- Rails -->
+        <div class="rail-top"><div class="rail-fill" id="railFill"></div></div>
+        <div class="rail-bottom"><div class="rail-fill" id="railFill2"></div></div>
+        <!-- Train emoji -->
+        <div class="loader-train-emoji" id="loaderTrain">🚄</div>
+      </div>
+      <div class="loader-pct" id="loaderPct">0%</div>
+      <div class="loader-subtext" id="loaderSub">Initialising...</div>
+    </div>
+
+    <!-- Results -->
+    <div class="state-results hidden" id="stateResults">
+
+      <!-- Live status banner -->
+      <div class="result-card" style="border-radius:var(--radius-lg) var(--radius-lg) 0 0; margin-bottom:0; border-bottom:none;">
+        <div class="live-banner" id="liveBanner">
+          <div class="live-pill">
+            <div class="live-dot"></div>
+            LIVE
+          </div>
+          <div class="live-stat">
+            <span class="ls-lbl">At Station</span>
+            <span class="ls-val" id="lbStation">—</span>
+          </div>
+          <span class="live-sep">|</span>
+          <div class="live-stat">
+            <span class="ls-lbl">Speed</span>
+            <span class="ls-val" id="lbSpeed">— km/h</span>
+          </div>
+          <span class="live-sep">|</span>
+          <div class="live-stat">
+            <span class="ls-lbl">Delay</span>
+            <span class="ls-val" id="lbDelay">— min</span>
+          </div>
+          <span class="live-updated" id="lbUpdated">—</span>
+        </div>
+        <!-- Previous / Next halt and Source departure sub-bar -->
+        <div id="lbHaltBar" style="
+          display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+          padding:10px 22px; background:rgba(29,53,87,0.04);
+          border-top:1px solid rgba(168,218,220,0.3);
+          font-size:0.75rem; color:var(--navy-60);
+        ">
+          <span id="lbSourceDep" style="display:flex;align-items:center;gap:6px;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.6"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            —
+          </span>
+          <span id="lbPrevHalt" style="display:flex;align-items:center;gap:6px;color:var(--teal-dark);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.7"><polyline points="15 18 9 12 15 6"/></svg>
+            —
+          </span>
+          <span id="lbNextHalt" style="display:flex;align-items:center;gap:6px;color:var(--blue);">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="opacity:.7"><polyline points="9 18 15 12 9 6"/></svg>
+            —
+          </span>
+        </div>
+      </div>
+
+      <!-- ETA Cards -->
+      <div class="result-card" style="border-radius:0; margin-bottom:0; border-top:none; border-bottom:none;">
+        <div class="eta-grid">
+          <div class="eta-card boarding">
+            <div class="eta-type">
+              <div class="eta-type-chip">BOARDING</div>
+              Where you board
+            </div>
+            <div class="eta-stn-name" id="etaBoardName">—</div>
+            <div class="eta-stn-code" id="etaBoardCode">—</div>
+            <div class="eta-time" id="etaBoardTime">—</div>
+            <div class="eta-delay-row">
+              <span class="delay-badge unknown" id="etaBoardBadge">—</span>
+              <span class="eta-delay-txt" id="etaBoardDelayTxt">—</span>
+            </div>
+          </div>
+          <div class="eta-card destination">
+            <div class="eta-type">
+              <div class="eta-type-chip">DESTINATION</div>
+              Where you exit
+            </div>
+            <div class="eta-stn-name" id="etaDestName">—</div>
+            <div class="eta-stn-code" id="etaDestCode">—</div>
+            <div class="eta-time" id="etaDestTime">—</div>
+            <div class="eta-delay-row">
+              <span class="delay-badge unknown" id="etaDestBadge">—</span>
+              <span class="eta-delay-txt" id="etaDestDelayTxt">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs + content -->
+      <div class="result-card" style="border-radius:0 0 var(--radius-lg) var(--radius-lg); border-top:none;">
+        <div class="result-tabs">
+          <button class="rtab active" id="tabJrny" onclick="switchTab('journey')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            My Journey
+          </button>
+          <button class="rtab" id="tabFull" onclick="switchTab('full')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+            Full Route
+          </button>
+          <button class="rtab" id="tabChart" onclick="switchTab('chart')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Delay Chart
+          </button>
+        </div>
+
+        <!-- My Journey tab -->
+        <div class="tab-pane active" id="paneJourney">
+          <div class="timeline-wrap" id="journeyTimeline">
+            <div class="timeline-empty">Select your train to see the timeline.</div>
+          </div>
+        </div>
+
+        <!-- Full Route tab -->
+        <div class="tab-pane" id="paneFull">
+          <div class="table-wrap">
+            <div class="table-controls">
+              <input type="text" class="table-search" id="tableSearch" placeholder="🔍  Search station..." oninput="filterTable()"/>
+              <div class="table-pg">
+                <button class="table-pg-btn" id="pgPrev" onclick="changePage(-1)">← Prev</button>
+                <span class="table-pg-info" id="pgInfo">—</span>
+                <button class="table-pg-btn" id="pgNext" onclick="changePage(1)">Next →</button>
+              </div>
+            </div>
+            <div class="table-scroll">
+              <table class="route-table">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Station</th>
+                    <th>Sched. Arrival</th>
+                    <th>Predicted ETA</th>
+                    <th>Delay</th>
+                    <th>Source</th>
+                  </tr>
+                </thead>
+                <tbody id="routeTableBody">
+                  <tr><td colspan="6" style="text-align:center;padding:24px;color:var(--navy-60);">Run a prediction to see the full route.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delay Chart tab -->
+        <div class="tab-pane" id="paneChart">
+          <div class="chart-wrap">
+            <div class="chart-hdr">
+              <div class="chart-title">Delay Trajectory — Your Journey</div>
+              <div class="chart-legend">
+                <div class="cl-item"><div class="cl-dot" style="background:#4ADE80"></div>Live (actual)</div>
+                <div class="cl-item"><div class="cl-dot" style="background:#457B9D"></div>AI Forecast</div>
+                <div class="cl-item"><div class="cl-dot" style="background:#A8DADC"></div>On-time line</div>
+              </div>
+            </div>
+            <canvas id="delayChart" height="240"></canvas>
+          </div>
+        </div>
+
+      </div><!-- /result-card tabs -->
+
+      <!-- Refresh row -->
+      <div class="refresh-row">
+        <button class="btn-refresh" id="btnRefresh" onclick="refreshPrediction()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+          Refresh Live Data
+        </button>
+        <span class="auto-refresh-txt" id="autoRefreshTxt">Auto-refreshes every 60 seconds</span>
+      </div>
+
+    </div><!-- /state-results -->
+
+  </main>
+</div><!-- /app-layout -->
+
+<!-- Footer -->
+<footer style="text-align:center; padding:32px 24px; border-top:1px solid rgba(168,218,220,0.35); margin-top:8px; font-size:0.78rem; color:var(--navy-60);">
+  <strong style="color:var(--navy)">RailSync<span style="color:var(--blue)">AI</span></strong> &nbsp;·&nbsp;
+  Live tracking powered by <a href="https://railradar.in" target="_blank" style="color:var(--blue); text-decoration:none;">RailRadar</a> &nbsp;·&nbsp;
+  AI predictions by XGBoost &nbsp;·&nbsp;
+  <a href="/" style="color:var(--blue); text-decoration:none;">Home</a>
+</footer>
+
+<script src="/static/js/chart.min.js"></script>
+<script src="/static/js/predict.js"></script>
+</body>
+</html>

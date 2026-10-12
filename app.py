@@ -7,6 +7,7 @@ os.environ["PYTHONIOENCODING"] = "utf-8"
 warnings.filterwarnings("ignore")
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+from datetime import datetime, date, timedelta
 from dotenv import load_dotenv
 load_dotenv()  # load .env (API key etc.) before anything else
 
@@ -20,6 +21,7 @@ from live_data.fetcher     import fetch_live_status, RailRadarError, SUPPORTED_T
 from live_data.live_predict import hybrid_predict_eta
 from live_data.updater      import update_dataset_from_live
 from live_data.stats_cache  import generate_all_stats
+from live_data.journey_resolver import get_active_journey_instances
 from prediction.indirect_engine import evaluate_and_rank_itineraries, get_all_stations
 from prediction.network_context_service import get_network_context
 from prediction.connection_risk_service import calculate_connection_risk
@@ -83,17 +85,18 @@ TRAIN_META = {
 print("Loading RailSync AI model...")
 _predict_module._load_resources()
 predict_train_delay = _predict_module.predict_train_delay
-_df = _predict_module._clean_df.copy()
-_df["journey_date"] = pd.to_datetime(_df["journey_date"])
+_df = _predict_module._clean_df
 print("Model ready. Dataset shape:", _df.shape)
 
-# Pre-bake statistics JSON files (frontend charts data)
-print("Generating statistics cache...")
-try:
-    generate_all_stats()
-    print("Stats cache ready.")
-except Exception as _e:
-    print(f"Stats cache warning: {_e}")
+# Pre-bake statistics JSON files (frontend charts data) only if not cached
+summary_cache = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "data", "summary.json")
+if not os.path.exists(summary_cache):
+    print("Generating statistics cache...")
+    try:
+        generate_all_stats()
+        print("Stats cache ready.")
+    except Exception as _e:
+        print(f"Stats cache warning: {_e}")
 
 
 def get_train_route(train_number: str):
@@ -493,17 +496,68 @@ def api_predict():
 # LIVE DATA API ROUTES
 # ────────────────────────────────────────────────────────────────────
 
-@app.route("/api/live/<train_number>")
-def api_live_status(train_number):
+@app.route("/api/trains/<train_number>/instances")
+def api_train_instances(train_number):
     """
-    GET /api/live/<train_number>
-    Returns live status of the train from RailRadar API or PostgreSQL DB fallback.
+    GET /api/trains/<train_number>/instances
+    Returns all active and scheduled journey instances for multi-day long distance trains.
+    Allows passengers to choose between multiple running trains of the same service.
     """
     tn = str(train_number).strip()
     if tn.startswith("0"):
         return jsonify({"error": "Special/temporary trains starting with 0 are not supported."}), 400
     try:
-        live = fetch_live_status(tn)
+        instances = get_active_journey_instances(tn)
+        inst_list = []
+        today = datetime.now().date()
+        for inst in instances:
+            d = inst.to_dict()
+            try:
+                j_date = datetime.strptime(inst.journey_start_date, "%Y-%m-%d").date()
+                days_diff = (today - j_date).days
+                if days_diff == 0:
+                    badge = "Today"
+                elif days_diff == 1:
+                    badge = "Yesterday"
+                elif days_diff > 1:
+                    badge = f"{days_diff} days ago"
+                else:
+                    badge = "Upcoming"
+            except Exception:
+                badge = inst.journey_start_date
+
+            d["badge"] = badge
+            d["relative_label"] = f"{badge} ({inst.journey_start_date})"
+            d["status_text"] = f"Day {inst.day_of_journey} of journey • From {inst.origin_station} to {inst.destination_station}"
+            inst_list.append(d)
+
+        # Multi-day train if route duration spans across multiple calendar days
+        is_multiday = len(inst_list) > 1
+
+        return jsonify({
+            "success": True,
+            "train_number": tn,
+            "instances": inst_list,
+            "is_multiday": is_multiday,
+            "total_instances": len(inst_list)
+        })
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
+
+
+@app.route("/api/live/<train_number>")
+def api_live_status(train_number):
+    """
+    GET /api/live/<train_number>
+    Returns live status of the train from RailRadar API or PostgreSQL DB fallback.
+    Supports optional journey_date query param to query a specific active journey instance.
+    """
+    tn = str(train_number).strip()
+    j_date = request.args.get("journey_date") or None
+    if tn.startswith("0"):
+        return jsonify({"error": "Special/temporary trains starting with 0 are not supported."}), 400
+    try:
+        live = fetch_live_status(tn, journey_date=j_date)
         return jsonify({"success": True, "data": live})
     except RailRadarError as e:
         return jsonify({"success": False, "error": str(e)}), 502
