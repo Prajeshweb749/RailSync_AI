@@ -583,11 +583,21 @@ function renderETACards(d) {
   const bName  = d.boarding_station || "—";
   const bEntry = (d.user_journey || []).find(s => s.is_boarding)
                || (d.full_journey || []).find(s => s.station === d.boarding_station);
+  const isDeparted = d.boarding_is_departed || (bEntry && bEntry.is_past);
+
   set("etaBoardName",     bEntry ? (bEntry.station_name || bName) : bName);
   set("etaBoardCode",     bName);
   set("etaBoardTime",     fmtETA(d.boarding_eta));
-  renderBadge("etaBoardBadge", d.boarding_delay_minutes, d.boarding_severity);
-  set("etaBoardDelayTxt", d.boarding_delay_minutes != null ? delayText(d.boarding_delay_minutes) : "");
+
+  if (isDeparted) {
+    renderBadge("etaBoardBadge", d.boarding_delay_minutes, d.boarding_severity, "Already Departed");
+    set("etaBoardDelayTxt", d.boarding_delay_minutes != null
+      ? `Departed at ${fmtETA(d.boarding_eta)} (+${d.boarding_delay_minutes}m behind schedule)`
+      : "Already departed this station");
+  } else {
+    renderBadge("etaBoardBadge", d.boarding_delay_minutes, d.boarding_severity);
+    set("etaBoardDelayTxt", d.boarding_delay_minutes != null ? delayText(d.boarding_delay_minutes) : "");
+  }
 
   // Destination card
   const dCode  = d.destination_station || "—";
@@ -600,12 +610,13 @@ function renderETACards(d) {
   set("etaDestDelayTxt", d.destination_delay_minutes != null ? delayText(d.destination_delay_minutes) : "");
 }
 
-function renderBadge(id, delayMin, severity) {
+function renderBadge(id, delayMin, severity, customPrefix = null) {
   const el = document.getElementById(id);
   if (!el) return;
   const sev = severity || classifySeverity(delayMin);
   const labels = { "on-time": "On Time ✓", minor: "Minor", moderate: "Moderate", major: "Major", severe: "Severe ⚠", unknown: "—" };
-  el.textContent = delayMin != null ? labels[sev] || sev : "—";
+  const label = delayMin != null ? labels[sev] || sev : "—";
+  el.textContent = customPrefix ? `${customPrefix} • ${label}` : label;
   el.className   = `delay-badge ${sev}`;
 }
 
@@ -627,7 +638,10 @@ function renderTimeline(journey) {
                     : "future";
 
     const tags = [];
-    if (s.is_boarding)                   tags.push(`<span class="tl-tag tag-board">BOARD</span>`);
+    if (s.is_boarding) {
+      if (s.is_past) tags.push(`<span class="tl-tag tag-board" style="background:#5C6B73">DEPARTED STOP</span>`);
+      else tags.push(`<span class="tl-tag tag-board">BOARD</span>`);
+    }
     if (s.is_user_destination)           tags.push(`<span class="tl-tag tag-exit">EXIT</span>`);
     if (s.is_current)                    tags.push(`<span class="tl-tag tag-current">NOW HERE</span>`);
     if (s.data_source === "live" && !s.is_boarding && !s.is_user_destination && !s.is_current)

@@ -124,33 +124,28 @@ def get_train_route(train_number: str):
 
 def get_historical_source_delay(train_number: str) -> float:
     """Get average departure delay from source station across historical journeys."""
-    tn = str(train_number)
-    train_rows = _df[_df["train_number"].astype(str) == tn]
-    source_rows = train_rows[
-        train_rows["station_sequence"] == train_rows.groupby("journey_date")["station_sequence"].transform("min")
-    ]
-    avg = source_rows["departure_delay_min"].dropna().mean()
-    return round(float(avg) if pd.notna(avg) else 0.0, 2)
+    try:
+        from db_adapter import get_historical_source_delay_from_db
+        return get_historical_source_delay_from_db(train_number)
+    except Exception:
+        tn = str(train_number)
+        train_rows = _df[_df["train_number"].astype(str) == tn]
+        if len(train_rows) > 0:
+            source_rows = train_rows[
+                train_rows["station_sequence"] == train_rows.groupby("journey_date")["station_sequence"].transform("min")
+            ]
+            avg = source_rows["departure_delay_min"].dropna().mean()
+            return round(float(avg) if pd.notna(avg) else 0.0, 2)
+        return 5.0
 
 
 def get_historical_enroute_delay(train_number: str) -> float:
     """Get average en-route delay for this train from DB observations."""
     try:
-        from db_adapter import get_db_connection
-        with get_db_connection() as conn:
-            with conn.cursor() as cur:
-                cur.execute("""
-                    SELECT AVG(arrival_delay_min) as avg_d
-                    FROM historical_station_observations hso
-                    JOIN historical_runs hr ON hso.run_id = hr.run_id
-                    WHERE hr.train_number = %s AND arrival_delay_min IS NOT NULL
-                """, (str(train_number),))
-                r = cur.fetchone()
-                if r and r["avg_d"] is not None:
-                    return round(float(r["avg_d"]), 1)
+        from db_adapter import get_historical_enroute_delay_from_db
+        return get_historical_enroute_delay_from_db(train_number)
     except Exception:
-        pass
-    return 15.0
+        return 15.0
 
 
 # ────────────────────────────────────────────────────────────────────

@@ -100,15 +100,20 @@ def hybrid_predict_eta(
 def build_db_fallback_live_status(train_number: str, journey_date: str | None = None) -> dict:
     """
     Builds a complete, realistic live status and station-by-station route progression from PostgreSQL
-    for a given train and journey instance departure date. Used when RailRadar live API quota is exceeded
-    or network error occurs.
+    for a given train and journey instance departure date. Uses historical section-level distributions
+    to accurately reflect real-world accumulated delays along multi-day corridors.
     """
-    from db_adapter import get_train_route_from_db, get_train_metadata_from_db
+    from db_adapter import (
+        get_train_route_from_db,
+        get_train_metadata_from_db,
+        get_route_delays_interpolated,
+        get_historical_source_delay_from_db,
+    )
     db_route = get_train_route_from_db(train_number)
     db_meta = get_train_metadata_from_db(train_number) or {}
     if not db_route:
         raise RailRadarError(f"Route for train {train_number} not found in live API or PostgreSQL database.")
-    
+
     # Calculate active station and full ISO timestamps based on schedule & current time
     now = datetime.now()
     today_date = now.date()
@@ -121,16 +126,9 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
         sh, sm = 8, 0
     src_dep_min = sh * 60 + sm
 
-    try:
-        from app import get_historical_enroute_delay
-        fallback_seed = get_historical_enroute_delay(train_number) or 15.0
-    except Exception:
-        fallback_seed = 15.0
-
     # If caller specified a journey_date, respect that exact departure date!
     if journey_date and str(journey_date).strip():
         try:
-            # Handle both 'YYYY-MM-DD' and '13006_YYYY-MM-DD' formats
             j_str = str(journey_date).strip().split("_")[-1]
             start_date = datetime.strptime(j_str, "%Y-%m-%d").date()
         except Exception:
@@ -141,58 +139,74 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
         else:
             start_date = today_date - timedelta(days=1)
 
-    # Elapsed minutes from the specified start_date departure
     origin_dep_dt = datetime(start_date.year, start_date.month, start_date.day, sh, sm)
     elapsed = (now - origin_dep_dt).total_seconds() / 60.0
 
-    # Subtract accumulated delay so schedule-based position correctly lags when running late
-    elapsed_progress = max(0.0, elapsed - float(fallback_seed))
+    # Query calibrated corridor delay profile across entire route from PostgreSQL observations
+    delays_map = get_route_delays_interpolated(train_number, db_route)
 
     parsed_route = []
-    current_stn_code = db_route[0]["station_code"]
-    current_stn_name = db_route[0]["station_name"]
-    current_stn_idx = 0
-    min_diff_to_now = 999999
+    latest_reached_idx = 0
 
     for i, s in enumerate(db_route):
         day_num = int(s.get("day_number") or 1)
         st_date = start_date + timedelta(days=day_num - 1)
 
-        st_time_str = s.get("scheduled_arrival") or s.get("scheduled_departure") or "00:00"
+        arr_str = s.get("scheduled_arrival") or s.get("scheduled_departure") or "00:00"
+        dep_str = s.get("scheduled_departure") or s.get("scheduled_arrival") or "00:00"
+
         try:
-            th, tm = map(int, str(st_time_str).split(":")[:2])
+            ah, am = map(int, str(arr_str).split(":")[:2])
         except Exception:
-            th, tm = 0, 0
+            ah, am = 0, 0
 
-        sched_dt = datetime(st_date.year, st_date.month, st_date.day, th, tm)
-        iso_sched = sched_dt.isoformat()
+        try:
+            dh, dm = map(int, str(dep_str).split(":")[:2])
+        except Exception:
+            dh, dm = ah, am
 
-        # Scheduled elapsed minutes from origin departure
-        st_elapsed = (sched_dt - origin_dep_dt).total_seconds() / 60.0
+        sched_arr_dt = datetime(st_date.year, st_date.month, st_date.day, ah, am)
+        sched_dep_dt = datetime(st_date.year, st_date.month, st_date.day, dh, dm)
+        if sched_dep_dt < sched_arr_dt:
+            # Crosses midnight during station halt
+            sched_dep_dt += timedelta(days=1)
 
-        diff = abs(st_elapsed - elapsed_progress)
-        if diff < min_diff_to_now:
-            min_diff_to_now = diff
-            current_stn_code = s["station_code"]
-            current_stn_name = s["station_name"]
-            current_stn_idx = i
+        # Historical / corridor delay for this specific station stop
+        stn_delays = delays_map.get(s["station_code"], {"arr_delay": 0.0, "dep_delay": 0.0})
+        stn_arr_delay = float(stn_delays.get("arr_delay", 0.0))
+        stn_dep_delay = float(stn_delays.get("dep_delay", stn_arr_delay))
+
+        # Expected actual arrival and departure datetimes calibrated by physical section history
+        est_arr_dt = sched_arr_dt + timedelta(minutes=stn_arr_delay)
+        est_dep_dt = sched_dep_dt + timedelta(minutes=stn_dep_delay)
+
+        # Has train physically reached this station?
+        if now >= est_arr_dt:
+            latest_reached_idx = i
 
         parsed_route.append({
             "sequence": s["sequence"],
             "station_code": s["station_code"],
             "station_name": s["station_name"],
             "status": "UPCOMING",
-            "scheduled_arrival": iso_sched,
-            "scheduled_departure": iso_sched,
-            "actual_arrival": iso_sched,
-            "actual_departure": iso_sched,
-            "delay_arrival_min": None,
-            "delay_departure_min": None,
+            "scheduled_arrival": sched_arr_dt.isoformat(),
+            "scheduled_departure": sched_dep_dt.isoformat(),
+            "actual_arrival": est_arr_dt.isoformat(),
+            "actual_departure": est_dep_dt.isoformat(),
+            "delay_arrival_min": round(stn_arr_delay, 1),
+            "delay_departure_min": round(stn_dep_delay, 1),
             "distance_km": s.get("distance_from_source", 0.0),
             "is_halt": s.get("is_halt", True),
             "day_number": day_num,
         })
 
+    # Clamp current position to route bounds
+    if now < origin_dep_dt:
+        current_stn_idx = 0
+    else:
+        current_stn_idx = min(latest_reached_idx, len(parsed_route) - 1)
+
+    # Assign past, current, upcoming statuses
     for i, pr in enumerate(parsed_route):
         if i < current_stn_idx:
             pr["status"] = "departed"
@@ -201,6 +215,11 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
         else:
             pr["status"] = "UPCOMING"
 
+    current_stn_code = parsed_route[current_stn_idx]["station_code"]
+    current_stn_name = parsed_route[current_stn_idx]["station_name"]
+    current_delay = float(parsed_route[current_stn_idx]["delay_arrival_min"] or 0.0)
+
+    # Previous and next commercial halts
     prev_halt_obj = None
     for k in range(current_stn_idx - 1, -1, -1):
         if parsed_route[k].get("is_halt", True):
@@ -233,13 +252,6 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
             "distance_km": dist_diff,
         }
 
-    # Query dynamic historical delay for this train from DB/model
-    try:
-        from app import get_historical_source_delay
-        fallback_seed = get_historical_source_delay(train_number) or 5.0
-    except Exception:
-        fallback_seed = 5.0
-
     calc_speed = round(45.0 + (int(str(train_number)[-2:]) % 35), 1)
 
     return {
@@ -255,12 +267,13 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
         "dest_name": parsed_route[-1]["station_name"],
         "current_station_code": current_stn_code,
         "current_station_name": current_stn_name,
-        "current_delay_minutes": float(fallback_seed),
+        "current_delay_minutes": float(current_delay),
         "speed_kmh": calc_speed,
         "route": parsed_route,
         "previous_halt": prev_halt_dict,
         "next_halt": next_halt_dict,
     }
+
 
 
 # ── Core function ─────────────────────────────────────────────────
@@ -575,6 +588,8 @@ def hybrid_predict_eta(
 
         # Live status
         "current_station":           current_code,
+        "current_station_code":      current_code,
+        "current_station_name":      live.get("current_station_name") or (route[current_idx]["station_name"] if current_idx is not None and current_idx < len(route) else current_code),
         "current_delay_minutes":     round(seed_delay, 2),
         "speed_kmh":                 live["speed_kmh"],
 
@@ -586,9 +601,11 @@ def hybrid_predict_eta(
 
         # User's boarding point
         "boarding_station":          boarding_station,
+        "boarding_name":             boarding_entry.get("station_name") if boarding_entry else boarding_station,
         "boarding_delay_minutes":    round(boarding_delay, 2) if boarding_delay is not None else None,
         "boarding_eta":              boarding_eta,
         "boarding_severity":         boarding_sev,
+        "boarding_is_departed":      bool(boarding_entry.get("is_past")) if boarding_entry else False,
 
         # User's chosen destination
         "destination_station":       destination_station or (route[-1]["station_code"] if route else ""),

@@ -202,12 +202,21 @@ def resolve_journey_instance(
             clean_date = clean_date.split("_")[-1]
         
         inst_id = f"{tn}_{clean_date}"
+        total_days = tt.get("total_days", 1) if tt else 1
+        try:
+            start_d_obj = datetime.strptime(clean_date, "%Y-%m-%d").date()
+            day_of_journey = max(1, min((obs_time.date() - start_d_obj).days + 1, total_days))
+        except Exception:
+            day_of_journey = 1
+
         return JourneyInstance(
             journey_instance_id=inst_id,
             train_number=tn,
             journey_start_date=clean_date,
             origin_station=origin,
             destination_station=dest,
+            day_of_journey=day_of_journey,
+            is_active=True,
             confidence=1.0,
             is_ambiguous=False,
         )

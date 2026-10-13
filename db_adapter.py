@@ -434,3 +434,208 @@ def log_prediction_to_db(
             except Exception:
                 pass
         return False
+
+
+def get_historical_station_delays_for_train(train_number: str) -> dict[str, dict]:
+    """
+    Returns a mapping of station_code -> {
+        'avg_arr_delay': float,
+        'avg_dep_delay': float,
+        'sample_count': int
+    } from PostgreSQL historical_station_observations for the given train.
+    """
+    conn = get_db_connection()
+    if not conn:
+        return {}
+    tn = str(train_number).strip()
+    try:
+        cur = conn.cursor()
+        sql = """
+            SELECT hso.station_code,
+                   ROUND(AVG(hso.arrival_delay_min)::numeric, 1) AS avg_arr,
+                   ROUND(AVG(hso.departure_delay_min)::numeric, 1) AS avg_dep,
+                   COUNT(*) AS sample_count
+            FROM historical_runs hr
+            JOIN historical_station_observations hso ON hr.run_id = hso.run_id
+            WHERE hr.train_number = %s
+              AND (hso.arrival_delay_min IS NOT NULL OR hso.departure_delay_min IS NOT NULL)
+            GROUP BY hso.station_code;
+        """
+        cur.execute(sql, (tn,))
+        rows = cur.fetchall()
+        cur.close()
+        conn.close()
+
+        res = {}
+        # Known Indian Railways station aliases (legacy vs updated codes)
+        alias_pairs = [("MGS", "DDU"), ("NDLS", "DLI"), ("HWH", "KOAA")]
+        for r in rows:
+            stn = str(r["station_code"]).strip()
+            arr_d = float(r["avg_arr"]) if r["avg_arr"] is not None else (float(r["avg_dep"]) if r["avg_dep"] is not None else 0.0)
+            dep_d = float(r["avg_dep"]) if r["avg_dep"] is not None else arr_d
+            res[stn] = {
+                "avg_arr_delay": arr_d,
+                "avg_dep_delay": dep_d,
+                "sample_count": int(r["sample_count"]),
+            }
+
+        # Apply alias mappings
+        for a, b in alias_pairs:
+            if a in res and b not in res:
+                res[b] = res[a]
+            elif b in res and a not in res:
+                res[a] = res[b]
+
+        return res
+    except Exception as e:
+        logger.warning(f"Error querying historical station delays: {e}")
+        if conn:
+            conn.close()
+        return {}
+
+
+def get_historical_source_delay_from_db(train_number: str) -> float:
+    """
+    Returns average origin departure delay for this train from PostgreSQL.
+    """
+    conn = get_db_connection()
+    if not conn:
+        return 5.0
+    tn = str(train_number).strip()
+    try:
+        cur = conn.cursor()
+        sql = """
+            SELECT ROUND(AVG(hso.departure_delay_min)::numeric, 1) AS avg_dep
+            FROM historical_runs hr
+            JOIN historical_station_observations hso ON hr.run_id = hso.run_id
+            WHERE hr.train_number = %s AND hso.stop_order = 1 AND hso.departure_delay_min IS NOT NULL;
+        """
+        cur.execute(sql, (tn,))
+        r = cur.fetchone()
+        cur.close()
+        conn.close()
+        if r and r["avg_dep"] is not None:
+            return float(r["avg_dep"])
+    except Exception as e:
+        logger.warning(f"Error querying historical source delay: {e}")
+        if conn:
+            conn.close()
+    return 5.0
+
+
+def get_historical_enroute_delay_from_db(train_number: str) -> float:
+    """
+    Returns overall average arrival delay for this train from PostgreSQL.
+    """
+    conn = get_db_connection()
+    if not conn:
+        return 15.0
+    tn = str(train_number).strip()
+    try:
+        cur = conn.cursor()
+        sql = """
+            SELECT ROUND(AVG(hso.arrival_delay_min)::numeric, 1) AS avg_d
+            FROM historical_runs hr
+            JOIN historical_station_observations hso ON hr.run_id = hso.run_id
+            WHERE hr.train_number = %s AND hso.arrival_delay_min IS NOT NULL;
+        """
+        cur.execute(sql, (tn,))
+        r = cur.fetchone()
+        cur.close()
+        conn.close()
+        if r and r["avg_d"] is not None:
+            return float(r["avg_d"])
+    except Exception as e:
+        logger.warning(f"Error querying historical enroute delay: {e}")
+        if conn:
+            conn.close()
+    return 15.0
+
+
+def get_route_delays_interpolated(train_number: str, db_route: list[dict]) -> dict[str, dict]:
+    """
+    Computes calibrated historical arrival and departure delays for every stop on db_route.
+    Known stations in PostgreSQL historical observations take their exact empirical delay.
+    Intermediate cabins / flag stations are linearly interpolated based on distance.
+    Returns: { station_code: { 'arr_delay': float, 'dep_delay': float } }
+    """
+    stn_delays = get_historical_station_delays_for_train(train_number)
+    if not db_route:
+        return {}
+
+    tot_dist = float(db_route[-1].get("distance_from_source") or 1000.0)
+    source_seed = get_historical_source_delay_from_db(train_number)
+
+    # 1. First pass: find all known points
+    known_indices = []
+    for idx, s in enumerate(db_route):
+        code = s.get("station_code")
+        if code in stn_delays:
+            known_indices.append(idx)
+
+    result = {}
+    if not known_indices:
+        # No historical station records: produce realistic distance-progressive delay curve
+        avg_overall = get_historical_enroute_delay_from_db(train_number)
+        for s in db_route:
+            dist = float(s.get("distance_from_source") or 0.0)
+            frac = min(1.0, dist / max(tot_dist, 1.0))
+            d = round(source_seed + (avg_overall - source_seed) * frac, 1)
+            result[s["station_code"]] = {"arr_delay": max(0.0, d), "dep_delay": max(0.0, d)}
+        return result
+
+    # 2. Assign known stops
+    for idx in known_indices:
+        code = db_route[idx]["station_code"]
+        arr_d = stn_delays[code]["avg_arr_delay"]
+        dep_d = stn_delays[code]["avg_dep_delay"]
+        result[code] = {"arr_delay": round(arr_d, 1), "dep_delay": round(dep_d, 1)}
+
+    # 3. Interpolate before the first known stop
+    first_known_idx = known_indices[0]
+    first_code = db_route[first_known_idx]["station_code"]
+    first_arr = result[first_code]["arr_delay"]
+    first_dist = float(db_route[first_known_idx].get("distance_from_source") or 1.0)
+
+    for idx in range(0, first_known_idx):
+        code = db_route[idx]["station_code"]
+        dist = float(db_route[idx].get("distance_from_source") or 0.0)
+        frac = dist / max(first_dist, 1.0)
+        d = round(source_seed + (first_arr - source_seed) * frac, 1)
+        result[code] = {"arr_delay": max(0.0, d), "dep_delay": max(0.0, d)}
+
+    # 4. Interpolate between consecutive known stops
+    for k in range(len(known_indices) - 1):
+        idx_a = known_indices[k]
+        idx_b = known_indices[k + 1]
+        code_a = db_route[idx_a]["station_code"]
+        code_b = db_route[idx_b]["station_code"]
+        dist_a = float(db_route[idx_a].get("distance_from_source") or 0.0)
+        dist_b = float(db_route[idx_b].get("distance_from_source") or 1.0)
+        del_a = result[code_a]["dep_delay"]
+        del_b = result[code_b]["arr_delay"]
+        dist_span = max(dist_b - dist_a, 1.0)
+
+        for idx in range(idx_a + 1, idx_b):
+            code = db_route[idx]["station_code"]
+            dist = float(db_route[idx].get("distance_from_source") or dist_a)
+            frac = (dist - dist_a) / dist_span
+            d = round(del_a + (del_b - del_a) * frac, 1)
+            result[code] = {"arr_delay": max(0.0, d), "dep_delay": max(0.0, d)}
+
+    # 5. Interpolate after the last known stop
+    last_known_idx = known_indices[-1]
+    last_code = db_route[last_known_idx]["station_code"]
+    last_dep = result[last_code]["dep_delay"]
+    last_dist = float(db_route[last_known_idx].get("distance_from_source") or tot_dist)
+    rem_dist_span = max(tot_dist - last_dist, 1.0)
+
+    for idx in range(last_known_idx + 1, len(db_route)):
+        code = db_route[idx]["station_code"]
+        dist = float(db_route[idx].get("distance_from_source") or tot_dist)
+        frac = (dist - last_dist) / rem_dist_span
+        d = round(last_dep + 5.0 * frac, 1)
+        result[code] = {"arr_delay": max(0.0, d), "dep_delay": max(0.0, d)}
+
+    return result
+

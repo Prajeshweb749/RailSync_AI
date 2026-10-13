@@ -40,7 +40,7 @@ def fetch_live_status(train_number: str, journey_date: str | None = None) -> dic
     params = {"date": str(journey_date).strip()} if journey_date and str(journey_date).strip() else None
 
     try:
-        resp = requests.get(url, headers=headers, params=params, timeout=15)
+        resp = requests.get(url, headers=headers, params=params, timeout=3.5)
     except requests.RequestException as e:
         raise RailRadarError(f"Network error calling RailRadar API: {e}")
 
