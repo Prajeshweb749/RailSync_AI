@@ -168,9 +168,11 @@ async function loadJourneyInstancesForTrain(trainNumber) {
         grp.style.display = "block";
         list.innerHTML = "";
 
-        // Default selection: prefer currently active instance or the latest running
-        const defaultInst = data.instances.find(i => i.is_active) || data.instances[0];
-        State.journeyDate = defaultInst.journey_start_date;
+        // Default selection: if user hasn't selected yet, default to active instance
+        if (!State.journeyDate) {
+          const defaultInst = data.instances.find(i => i.is_active) || data.instances[0];
+          State.journeyDate = defaultInst.journey_start_date;
+        }
 
         data.instances.forEach(inst => {
           const isSelected = (inst.journey_start_date === State.journeyDate);
@@ -179,6 +181,9 @@ async function loadJourneyInstancesForTrain(trainNumber) {
           card.id = `jc-${inst.journey_instance_id}`;
 
           const badgeClass = inst.is_active ? 'active-badge' : '';
+          const currentText = inst.current_station_name
+            ? ` • Near ${inst.current_station_name}`
+            : (inst.current_station ? ` • Near ${inst.current_station}` : '');
 
           card.innerHTML = `
             <div class="jc-info">
@@ -186,7 +191,7 @@ async function loadJourneyInstancesForTrain(trainNumber) {
                 <span class="jc-title">${inst.relative_label}</span>
                 <span class="jc-badge ${badgeClass}">${inst.is_active ? 'Active En-Route' : 'Scheduled'}</span>
               </div>
-              <div class="jc-sub">Day ${inst.day_of_journey} • Origin: ${inst.origin_station} (${inst.scheduled_origin_departure ? inst.scheduled_origin_departure.substring(11, 16) : 'Scheduled'}) → ${inst.destination_station}</div>
+              <div class="jc-sub">Day ${inst.day_of_journey}${currentText} • Origin: ${inst.origin_station} (${inst.scheduled_origin_departure ? inst.scheduled_origin_departure.substring(11, 16) : 'Scheduled'}) → ${inst.destination_station}</div>
             </div>
             <div class="jc-radio"></div>
           `;
@@ -250,6 +255,9 @@ function populateStationDropdowns(route) {
   const boarding = document.getElementById("boardingSel");
   const dest     = document.getElementById("destSel");
 
+  const savedBoarding = State.boardingCode;
+  const savedDest = State.destCode;
+
   boarding.innerHTML = `<option value="">Select where you board...</option>`;
   dest.innerHTML     = `<option value="">Select your destination...</option>`;
 
@@ -263,6 +271,17 @@ function populateStationDropdowns(route) {
     boarding.innerHTML += `<option value="${s.station_code}">${label}</option>`;
     dest.innerHTML     += `<option value="${s.station_code}">${label}</option>`;
   });
+
+  if (savedBoarding && dropdownStops.some(s => s.station_code === savedBoarding)) {
+    boarding.value = savedBoarding;
+    State.boardingCode = savedBoarding;
+    dest.disabled = false;
+  }
+  if (savedDest && dropdownStops.some(s => s.station_code === savedDest)) {
+    dest.value = savedDest;
+    State.destCode = savedDest;
+  }
+  checkPredictReady();
 }
 
 function showStationLoading(show) {
@@ -316,159 +335,8 @@ async function runPrediction() {
   await animateLoader();
 
   try {
-    // 1. Try unified /api/analyse endpoint
-    let res = await fetch("/api/analyse", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        train_number:        State.selectedTrain.train_number,
-        source_station:      State.boardingCode,
-        dest_station:        State.destCode,
-        current_station:     State.boardingCode,
-        current_delay:       State.selectedTrain.avg_delay_min || 0,
-        journey_date:        State.journeyDate || new Date().toISOString().split('T')[0],
-      }),
-    });
-
-    let data = null;
-    if (res.ok) {
-      try {
-        data = await res.json();
-      } catch (parseErr) {
-        console.warn("Could not parse /api/analyse JSON response:", parseErr);
-        data = null;
-      }
-    }
-
-    if (data && data.success && data.predictions) {
-      const p = data.predictions;
-      const live = data.live_status || {};
-      const net = data.network_context || {};
-      const meta = data.train_metadata || {};
-
-      // Build dictionary of station names and scheduled times from network context
-      const stationNameMap = {};
-      const schedTimeMap = {};
-      if (net && net.route_segment) {
-        net.route_segment.forEach(seg => {
-          if (seg.station_code) {
-            stationNameMap[seg.station_code] = seg.station_name || seg.station_code;
-            if (seg.sched_dep) schedTimeMap[seg.station_code] = seg.sched_dep;
-            else if (seg.sched_arr) schedTimeMap[seg.station_code] = seg.sched_arr;
-          }
-        });
-      }
-
-      // Check boarding and destination codes
-      const boardCode = State.boardingCode;
-      const destCode  = State.destCode;
-      const currCode  = live.current_station || p.current_station || boardCode;
-      const currDelay = p.current_delay != null ? p.current_delay : (live.delay_min || 0);
-
-      // Compute boarding ETA (scheduled departure + delay)
-      let boardEta = null;
-      const boardSched = schedTimeMap[boardCode];
-      if (boardSched) {
-        try {
-          const jDate = p.journey_date || "2026-10-10";
-          const d = new Date(`${jDate}T${boardSched.length === 5 ? boardSched + ':00' : boardSched}`);
-          d.setMinutes(d.getMinutes() + Math.round(currDelay));
-          boardEta = d.toISOString();
-        } catch (e) {
-          boardEta = null;
-        }
-      }
-
-      // Build forecast stops with readable station names
-      const forecastStops = (p.forecast || []).map(item => ({
-        station: item.station,
-        station_name: stationNameMap[item.station] || item.station_name || item.station,
-        predicted_delay: item.predicted_delay,
-        predicted_delay_change: item.predicted_delay_change,
-        scheduled_arrival: item.scheduled_arrival,
-        predicted_eta: item.predicted_eta,
-        data_source: "model",
-        is_user_destination: item.station === destCode
-      }));
-
-      // Build full route
-      let fullRoute = [];
-      const boardInForecast = forecastStops.find(s => s.station === boardCode);
-      if (!boardInForecast) {
-        fullRoute = [
-          {
-            station: boardCode,
-            station_name: stationNameMap[boardCode] || boardCode,
-            predicted_delay: currDelay,
-            predicted_delay_change: 0,
-            scheduled_arrival: boardSched ? `${p.journey_date || "2026-10-10"}T${boardSched}:00` : null,
-            predicted_eta: boardEta,
-            data_source: live.source === "live" ? "live" : "model",
-            is_boarding: true
-          },
-          ...forecastStops
-        ];
-      } else {
-        boardInForecast.is_boarding = true;
-        boardEta = boardInForecast.predicted_eta || boardEta;
-        fullRoute = forecastStops;
-      }
-
-      // Find the user's SELECTED destination stop (NOT the final terminus)
-      const destStop = fullRoute.find(item => item.station === destCode) || fullRoute[fullRoute.length - 1];
-      const destEta = destStop ? destStop.predicted_eta : null;
-      const destDelay = destStop ? destStop.predicted_delay : 0;
-      const destName = destStop ? (destStop.station_name || destStop.station) : destCode;
-
-      // Slice user journey specifically between boarding and destination
-      const boardIdx = fullRoute.findIndex(item => item.station === boardCode);
-      const destIdx = fullRoute.findIndex(item => item.station === destCode);
-      let userJourney = fullRoute;
-      if (boardIdx !== -1 && destIdx !== -1 && destIdx >= boardIdx) {
-        userJourney = fullRoute.slice(boardIdx, destIdx + 1);
-      } else if (destIdx !== -1) {
-        userJourney = fullRoute.slice(0, destIdx + 1);
-      }
-
-      const normalizedData = {
-        train_number: data.train_number,
-        train_name: meta.name || (State.selectedTrain ? State.selectedTrain.train_name : `Train ${data.train_number}`),
-        current_station: currCode,
-        speed_kmh: live.speed_kmh || 0,
-        current_delay_minutes: currDelay,
-        last_updated_at: live.last_updated_at || new Date().toISOString(),
-        boarding_station: boardCode,
-        boarding_name: stationNameMap[boardCode] || boardCode,
-        destination_station: destCode,
-        destination_name: destName,
-        boarding_eta: boardEta,
-        destination_eta: destEta,
-        boarding_delay_minutes: currDelay,
-        destination_delay_minutes: destDelay,
-        previous_halt: live.previous_halt,
-        next_halt: live.next_halt,
-        train_source_name: meta.source_name || (State.selectedTrain ? State.selectedTrain.source_name : null),
-        source_departure: live.source_departure,
-        source_departure_actual: live.source_departure_actual,
-        full_journey: fullRoute,
-        user_journey: userJourney,
-        network_context: net
-      };
-
-      State.lastResult  = normalizedData;
-      State.fullRoute   = normalizedData.full_journey;
-      State.userRoute   = normalizedData.user_journey;
-      State.filteredRoute = [...State.fullRoute];
-      State.currentPage   = 1;
-
-      finishLoader();
-      renderResults(normalizedData);
-      startAutoRefresh();
-      return;
-    }
-
-    // 2. Fallback to /api/live-predict
-    res = await fetch("/api/live-predict", {
+    // Call /api/live-predict with exact journey instance date
+    const res = await fetch("/api/live-predict", {
       method:  "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -479,12 +347,12 @@ async function runPrediction() {
       }),
     });
 
-    data = await res.json();
+    const data = await res.json();
     if (!data.success) throw new Error(data.error || "Prediction failed");
 
-    State.lastResult  = data.data;
-    State.fullRoute   = data.data.full_journey  || [];
-    State.userRoute   = data.data.user_journey  || [];
+    State.lastResult    = data.data;
+    State.fullRoute     = data.data.full_journey  || [];
+    State.userRoute     = data.data.user_journey  || [];
     State.filteredRoute = [...State.fullRoute];
     State.currentPage   = 1;
 
@@ -624,6 +492,7 @@ function showState(which) {
    RENDER RESULTS
 ══════════════════════════════════════════════════════════════════ */
 function renderResults(d) {
+  renderInstanceSwitcher();
   renderLiveBanner(d);
   renderETACards(d);
   renderTimeline(d.user_journey || []);
@@ -631,9 +500,55 @@ function renderResults(d) {
   renderChart(d.user_journey  || []);
 }
 
+function renderInstanceSwitcher() {
+  const bar = document.getElementById("resultsInstanceBar");
+  const pills = document.getElementById("resultsInstancePills");
+  if (!bar || !pills) return;
+
+  if (!State.activeInstances || State.activeInstances.length <= 1) {
+    bar.style.display = "none";
+    return;
+  }
+
+  bar.style.display = "flex";
+  pills.innerHTML = "";
+
+  State.activeInstances.forEach(inst => {
+    const isSelected = (inst.journey_start_date === State.journeyDate);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.style.cssText = `
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      border: 1.5px solid ${isSelected ? 'var(--navy)' : 'rgba(29,53,87,0.2)'};
+      background: ${isSelected ? 'var(--navy)' : 'white'};
+      color: ${isSelected ? 'white' : 'var(--navy)'};
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    `;
+    const stnLabel = inst.current_station_name ? ` (near ${inst.current_station_name})` : (inst.current_station ? ` (near ${inst.current_station})` : '');
+    btn.innerHTML = `${isSelected ? '✓ ' : ''}${inst.relative_label} • Day ${inst.day_of_journey}${stnLabel}`;
+    btn.onclick = async () => {
+      if (inst.journey_start_date === State.journeyDate) return;
+      State.journeyDate = inst.journey_start_date;
+      document.querySelectorAll(".journey-card").forEach(c => {
+        c.classList.toggle("selected", c.id === `jc-${inst.journey_instance_id}`);
+      });
+      await runPrediction();
+    };
+    pills.appendChild(btn);
+  });
+}
+
 /* ── Live Banner ────────────────────────────────────────────────── */
 function renderLiveBanner(d) {
-  set("lbStation", d.current_station || "—");
+  const currStn = d.current_station_name ? `${d.current_station_name} (${d.current_station})` : (d.current_station || "—");
+  set("lbStation", currStn);
   set("lbSpeed",   d.speed_kmh != null ? `${d.speed_kmh} km/h` : "— km/h");
   set("lbDelay",   d.current_delay_minutes != null ? `${d.current_delay_minutes} min late` : "—");
   set("lbUpdated", d.last_updated_at ? `Updated: ${fmtRelTime(d.last_updated_at)}` : "");

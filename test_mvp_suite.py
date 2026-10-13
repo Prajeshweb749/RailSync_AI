@@ -14,6 +14,8 @@ import os
 import sys
 import unittest
 import json
+import warnings
+warnings.filterwarnings("ignore")
 from dotenv import load_dotenv
 
 load_dotenv()

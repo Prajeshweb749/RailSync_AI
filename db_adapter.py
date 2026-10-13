@@ -173,6 +173,7 @@ def get_train_route_from_db(train_number: str):
         cur = conn.cursor()
         sql = """
             SELECT ts.station_code, s.name AS station_name, ts.stop_order AS sequence,
+                   ts.day_number,
                    ts.arrival_time::text AS scheduled_arrival,
                    ts.departure_time::text AS scheduled_departure,
                    t.distance_km AS total_train_distance,
@@ -205,6 +206,7 @@ def get_train_route_from_db(train_number: str):
                 "station_code": r["station_code"],
                 "station_name": r["station_name"] or r["station_code"],
                 "sequence": seq,
+                "day_number": int(r["day_number"] or 1),
                 "scheduled_arrival": r["scheduled_arrival"][:5] if r["scheduled_arrival"] else None,
                 "scheduled_departure": r["scheduled_departure"][:5] if r["scheduled_departure"] else None,
                 "distance_from_source": dist,

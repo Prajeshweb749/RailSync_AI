@@ -526,9 +526,20 @@ def api_train_instances(train_number):
             except Exception:
                 badge = inst.journey_start_date
 
+            # If instance is active, estimate current station
+            if inst.is_active:
+                try:
+                    from live_data.live_predict import build_db_fallback_live_status
+                    inst_live = build_db_fallback_live_status(tn, journey_date=inst.journey_start_date)
+                    d["current_station"] = inst_live.get("current_station_code")
+                    d["current_station_name"] = inst_live.get("current_station_name")
+                except Exception:
+                    pass
+
             d["badge"] = badge
             d["relative_label"] = f"{badge} ({inst.journey_start_date})"
-            d["status_text"] = f"Day {inst.day_of_journey} of journey • From {inst.origin_station} to {inst.destination_station}"
+            stn_str = f" • Near {d.get('current_station_name') or d.get('current_station')}" if d.get("current_station") else ""
+            d["status_text"] = f"Day {inst.day_of_journey} of journey{stn_str} • From {inst.origin_station} to {inst.destination_station}"
             inst_list.append(d)
 
         # Multi-day train if route duration spans across multiple calendar days
@@ -559,10 +570,13 @@ def api_live_status(train_number):
     try:
         live = fetch_live_status(tn, journey_date=j_date)
         return jsonify({"success": True, "data": live})
-    except RailRadarError as e:
-        return jsonify({"success": False, "error": str(e)}), 502
     except Exception as e:
-        return jsonify({"success": False, "error": f"Unexpected error: {e}"}), 500
+        try:
+            from live_data.live_predict import build_db_fallback_live_status
+            live = build_db_fallback_live_status(tn, journey_date=j_date)
+            return jsonify({"success": True, "data": live, "source": "db_fallback"})
+        except Exception as fb_err:
+            return jsonify({"success": False, "error": f"{e}; Fallback error: {fb_err}"}), 502
 
 
 @app.route("/api/live-predict", methods=["POST"])

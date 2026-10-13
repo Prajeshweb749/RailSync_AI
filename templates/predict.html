@@ -241,6 +241,15 @@
     <!-- Results -->
     <div class="state-results hidden" id="stateResults">
 
+      <!-- Multi-Day Train Instance Switcher in Results -->
+      <div id="resultsInstanceBar" style="display:none; margin-bottom:14px; background:white; padding:12px 18px; border-radius:var(--radius-lg); border:1.5px solid rgba(29,53,87,0.12); box-shadow:var(--shadow-sm); align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="font-size:0.86rem; font-weight:700; color:var(--navy);">🗓 Multi-Day Running Service:</span>
+          <span style="font-size:0.76rem; color:var(--navy-60);">Switch between simultaneously running trains:</span>
+        </div>
+        <div id="resultsInstancePills" style="display:flex; gap:8px; flex-wrap:wrap;"></div>
+      </div>
+
       <!-- Live status banner -->
       <div class="result-card" style="border-radius:var(--radius-lg) var(--radius-lg) 0 0; margin-bottom:0; border-bottom:none;">
         <div class="live-banner" id="liveBanner">
