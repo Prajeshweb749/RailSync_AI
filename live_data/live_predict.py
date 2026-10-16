@@ -391,6 +391,10 @@ def hybrid_predict_eta(
         actual_dep = s.get("actual_departure")
         reached_eta = actual_arr or actual_dep or _eta_str(s["scheduled_arrival"], station_delay)
 
+        stn_departed = bool(s.get("status") in ("departed", "COMPLETED") or actual_dep)
+        stn_is_past = (not is_current) or stn_departed
+        stn_is_current = bool(is_current and not stn_departed)
+
         full_journey.append({
             "station":                s["station_code"],
             "station_name":           s["station_name"],
@@ -402,9 +406,10 @@ def hybrid_predict_eta(
             "actual_arrival":         actual_arr,
             "actual_departure":       actual_dep,
             "predicted_eta":          reached_eta,
-            "is_past":                not is_current,
-            "is_current":             is_current,
+            "is_past":                stn_is_past,
+            "is_current":             stn_is_current,
             "is_future":              False,
+            "is_departed":            stn_departed,
             "is_source":              i == 0,
             "is_destination":         i == len(route) - 1,
             "is_boarding":            False,
@@ -623,7 +628,7 @@ def hybrid_predict_eta(
         "boarding_delay_minutes":    round(boarding_delay, 2) if boarding_delay is not None else None,
         "boarding_eta":              boarding_eta,
         "boarding_severity":         boarding_sev,
-        "boarding_is_departed":      bool(boarding_entry.get("is_past")) if boarding_entry else False,
+        "boarding_is_departed":      bool(boarding_entry.get("is_past") or boarding_entry.get("is_departed") or boarding_entry.get("actual_departure")) if boarding_entry else False,
 
         # User's chosen destination
         "destination_station":       destination_station or (route[-1]["station_code"] if route else ""),
