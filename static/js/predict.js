@@ -584,15 +584,16 @@ function renderETACards(d) {
   const bEntry = (d.user_journey || []).find(s => s.is_boarding)
                || (d.full_journey || []).find(s => s.station === d.boarding_station);
   const isDeparted = d.boarding_is_departed || (bEntry && bEntry.is_past);
+  const boardActualTime = bEntry ? (bEntry.actual_departure || bEntry.actual_arrival || bEntry.predicted_eta) : d.boarding_eta;
 
   set("etaBoardName",     bEntry ? (bEntry.station_name || bName) : bName);
   set("etaBoardCode",     bName);
-  set("etaBoardTime",     fmtETA(d.boarding_eta));
+  set("etaBoardTime",     fmtETA(boardActualTime));
 
   if (isDeparted) {
     renderBadge("etaBoardBadge", d.boarding_delay_minutes, d.boarding_severity, "Already Departed");
     set("etaBoardDelayTxt", d.boarding_delay_minutes != null
-      ? `Departed at ${fmtETA(d.boarding_eta)} (+${d.boarding_delay_minutes}m behind schedule)`
+      ? `Departed at ${fmtETA(boardActualTime)} (+${d.boarding_delay_minutes}m behind schedule)`
       : "Already departed this station");
   } else {
     renderBadge("etaBoardBadge", d.boarding_delay_minutes, d.boarding_severity);
@@ -603,11 +604,22 @@ function renderETACards(d) {
   const dCode  = d.destination_station || "—";
   const dEntry = (d.user_journey || []).find(s => s.is_user_destination)
                || (d.full_journey || []).find(s => s.station === d.destination_station);
+  const isDestDeparted = dEntry && dEntry.is_past;
+  const destActualTime = dEntry ? (dEntry.actual_arrival || dEntry.actual_departure || dEntry.predicted_eta) : d.destination_eta;
+
   set("etaDestName",     dEntry ? (dEntry.station_name || dCode) : (d.destination_name || dCode));
   set("etaDestCode",     dCode);
-  set("etaDestTime",     fmtETA(d.destination_eta, d.boarding_eta));
-  renderBadge("etaDestBadge", d.destination_delay_minutes, d.destination_severity);
-  set("etaDestDelayTxt", d.destination_delay_minutes != null ? delayText(d.destination_delay_minutes) : "");
+  set("etaDestTime",     fmtETA(destActualTime, boardActualTime));
+
+  if (isDestDeparted) {
+    renderBadge("etaDestBadge", d.destination_delay_minutes, d.destination_severity, "Already Reached");
+    set("etaDestDelayTxt", d.destination_delay_minutes != null
+      ? `Reached at ${fmtETA(destActualTime, boardActualTime)} (+${d.destination_delay_minutes}m behind schedule)`
+      : "Train has already arrived at destination");
+  } else {
+    renderBadge("etaDestBadge", d.destination_delay_minutes, d.destination_severity);
+    set("etaDestDelayTxt", d.destination_delay_minutes != null ? delayText(d.destination_delay_minutes) : "");
+  }
 }
 
 function renderBadge(id, delayMin, severity, customPrefix = null) {
@@ -671,7 +683,7 @@ function renderTimeline(journey) {
               <div class="${nameCls}">${s.station_name || s.station}</div>
             </div>
             <div class="tl-right">
-              ${etaStr ? `<div class="tl-eta">${etaStr}</div>` : ""}
+              ${etaStr ? `<div class="tl-eta">${s.is_past ? `<span style="font-size:0.65rem; color:#5C6B73; font-weight:700; text-transform:uppercase; margin-right:4px;">Reached</span>` : ''}${etaStr}</div>` : ""}
               ${dlyStr ? `<div class="tl-delay" style="color:${dlyCol}">${dlyStr}</div>` : ""}
             </div>
           </div>
@@ -846,16 +858,49 @@ function set(id, html) {
   if (el) el.textContent = html;
 }
 
+function parseLocalDate(str) {
+  if (!str) return null;
+  const m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2}))?/);
+  if (m) {
+    return {
+      year: parseInt(m[1], 10),
+      month: parseInt(m[2], 10) - 1,
+      day: parseInt(m[3], 10),
+      hour: m[4] != null ? parseInt(m[4], 10) : 0,
+      minute: m[5] != null ? parseInt(m[5], 10) : 0,
+    };
+  }
+  const d = new Date(str);
+  return isNaN(d.getTime()) ? null : {
+    year: d.getFullYear(),
+    month: d.getMonth(),
+    day: d.getDate(),
+    hour: d.getHours(),
+    minute: d.getMinutes(),
+  };
+}
+
 function fmtETA(isoStr, refIsoStr = null) {
   if (!isoStr) return "—";
   try {
-    const d = new Date(isoStr);
-    const timeStr = d.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", hour12: true });
+    const pD = parseLocalDate(isoStr);
+    if (!pD) return "—";
+
+    const hh = pD.hour;
+    const mm = String(pD.minute).padStart(2, "0");
+    const ampm = hh >= 12 ? "PM" : "AM";
+    const hh12 = hh % 12 || 12;
+    const timeStr = `${String(hh12).padStart(2, "0")}:${mm} ${ampm}`;
+
     if (!refIsoStr) return timeStr;
-    const refDate = new Date(refIsoStr);
-    const dDateOnly = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-    const refDateOnly = new Date(refDate.getFullYear(), refDate.getMonth(), refDate.getDate());
+
+    const pRef = parseLocalDate(refIsoStr);
+    if (!pRef) return timeStr;
+
+    const dDateOnly = new Date(pD.year, pD.month, pD.day);
+    const refDateOnly = new Date(pRef.year, pRef.month, pRef.day);
     const diffDays = Math.round((dDateOnly - refDateOnly) / (1000 * 60 * 60 * 24));
+
     if (diffDays === 1) return `${timeStr} (+1 Day)`;
     if (diffDays > 1) return `${timeStr} (+${diffDays} Days)`;
     return timeStr;

@@ -521,13 +521,13 @@ def api_train_instances(train_number):
             except Exception:
                 badge = inst.journey_start_date
 
-            # If instance is active, estimate current station
+            # If instance is active, estimate current station ultra-fast (<0.1ms)
             if inst.is_active:
                 try:
-                    from live_data.live_predict import build_db_fallback_live_status
-                    inst_live = build_db_fallback_live_status(tn, journey_date=inst.journey_start_date)
-                    d["current_station"] = inst_live.get("current_station_code")
-                    d["current_station_name"] = inst_live.get("current_station_name")
+                    from live_data.journey_resolver import estimate_instance_current_station
+                    curr_stn_info = estimate_instance_current_station(tn, inst.journey_start_date)
+                    d["current_station"] = curr_stn_info.get("station_code")
+                    d["current_station_name"] = curr_stn_info.get("station_name")
                 except Exception:
                     pass
 

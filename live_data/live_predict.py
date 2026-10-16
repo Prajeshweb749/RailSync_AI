@@ -42,30 +42,32 @@ from live_data.fetcher import fetch_live_status, RailRadarError
 from live_data.journey_resolver import resolve_journey_instance
 
 
-# ── Parse ISO datetime from API ───────────────────────────────────
 def _parse_iso(val) -> datetime | None:
     """
     Safely parse any datetime string the API returns.
-    Returns a timezone-aware datetime, or None if unparseable.
+    Returns a normalized datetime without timezone drift.
     """
     if not val:
         return None
     try:
-        return dtparser.parse(str(val))
+        dt = dtparser.parse(str(val))
+        if dt.tzinfo is not None:
+            dt = dt.replace(tzinfo=None)
+        return dt
     except Exception:
         return None
 
 
 def _eta_str(sched_val, delay_min: float) -> str | None:
     """
-    Returns ISO-8601 ETA string:
+    Returns normalized ISO-8601 ETA string (YYYY-MM-DDTHH:MM:SS):
       scheduled_arrival_datetime + timedelta(minutes=delay_min)
     """
     sched = _parse_iso(sched_val)
     if sched is None:
         return None
     eta = sched + timedelta(minutes=delay_min)
-    return eta.isoformat()
+    return eta.strftime("%Y-%m-%dT%H:%M:%S")
 
 
 def _severity(delay_min: float) -> str:
@@ -189,10 +191,10 @@ def build_db_fallback_live_status(train_number: str, journey_date: str | None = 
             "station_code": s["station_code"],
             "station_name": s["station_name"],
             "status": "UPCOMING",
-            "scheduled_arrival": sched_arr_dt.isoformat(),
-            "scheduled_departure": sched_dep_dt.isoformat(),
-            "actual_arrival": est_arr_dt.isoformat(),
-            "actual_departure": est_dep_dt.isoformat(),
+            "scheduled_arrival": sched_arr_dt.strftime("%Y-%m-%dT%H:%M:%S"),
+            "scheduled_departure": sched_dep_dt.strftime("%Y-%m-%dT%H:%M:%S"),
+            "actual_arrival": est_arr_dt.strftime("%Y-%m-%dT%H:%M:%S"),
+            "actual_departure": est_dep_dt.strftime("%Y-%m-%dT%H:%M:%S"),
             "delay_arrival_min": round(stn_arr_delay, 1),
             "delay_departure_min": round(stn_dep_delay, 1),
             "distance_km": s.get("distance_from_source", 0.0),
@@ -360,17 +362,21 @@ def hybrid_predict_eta(
             act = _parse_iso(s["actual_arrival"])
             sch = _parse_iso(s["scheduled_arrival"])
             if act and sch:
-                api_arr = (act - sch).total_seconds() / 60.0
+                diff_m = (act - sch).total_seconds() / 60.0
+                if abs(diff_m) > 0.01:
+                    api_arr = diff_m
 
         if api_dep is None and s.get("actual_departure") and s.get("scheduled_departure"):
             act = _parse_iso(s["actual_departure"])
             sch = _parse_iso(s["scheduled_departure"])
             if act and sch:
-                api_dep = (act - sch).total_seconds() / 60.0
+                diff_m = (act - sch).total_seconds() / 60.0
+                if abs(diff_m) > 0.01:
+                    api_dep = diff_m
 
         station_delay_val = api_arr if api_arr is not None else api_dep
 
-        if station_delay_val is not None and s.get("status") in ("departed", "arrived", "COMPLETED"):
+        if station_delay_val is not None and (s.get("status") in ("departed", "arrived", "COMPLETED") or not is_current):
             station_delay = float(station_delay_val)
         elif is_current:
             station_delay = seed_delay
@@ -381,6 +387,10 @@ def hybrid_predict_eta(
         prev_delay = full_journey[-1]["predicted_delay"] if full_journey else 0.0
         change     = station_delay - prev_delay
 
+        actual_arr = s.get("actual_arrival")
+        actual_dep = s.get("actual_departure")
+        reached_eta = actual_arr or actual_dep or _eta_str(s["scheduled_arrival"], station_delay)
+
         full_journey.append({
             "station":                s["station_code"],
             "station_name":           s["station_name"],
@@ -388,7 +398,10 @@ def hybrid_predict_eta(
             "predicted_delay":        round(station_delay, 2),
             "predicted_delay_change": round(change, 2),
             "scheduled_arrival":      s["scheduled_arrival"],
-            "predicted_eta":          _eta_str(s["scheduled_arrival"], station_delay),
+            "scheduled_departure":    s.get("scheduled_departure"),
+            "actual_arrival":         actual_arr,
+            "actual_departure":       actual_dep,
+            "predicted_eta":          reached_eta,
             "is_past":                not is_current,
             "is_current":             is_current,
             "is_future":              False,
@@ -398,6 +411,7 @@ def hybrid_predict_eta(
             "is_halt":                s.get("is_halt", True),
             "distance_km":            s.get("distance_km", 0.0),
             "data_source":            "live",
+            "day_number":             s.get("day_number"),
         })
 
     # ── Future stations (XGBoost / Dynamic Section Stats) ─────────
@@ -478,6 +492,9 @@ def hybrid_predict_eta(
             "predicted_delay":        round(next_delay, 2),
             "predicted_delay_change": round(predicted_change, 2),
             "scheduled_arrival":      s["scheduled_arrival"],
+            "scheduled_departure":    s.get("scheduled_departure"),
+            "actual_arrival":         None,
+            "actual_departure":       None,
             "predicted_eta":          _eta_str(s["scheduled_arrival"], next_delay),
             "is_past":                False,
             "is_current":             False,
@@ -488,6 +505,7 @@ def hybrid_predict_eta(
             "is_halt":                s.get("is_halt", True),
             "distance_km":            s.get("distance_km", 0.0),
             "data_source":            "model",
+            "day_number":             s.get("day_number"),
         })
 
         prev_delay = next_delay

@@ -552,6 +552,8 @@ def get_historical_enroute_delay_from_db(train_number: str) -> float:
     return 15.0
 
 
+_ROUTE_DELAYS_CACHE: dict[str, dict] = {}
+
 def get_route_delays_interpolated(train_number: str, db_route: list[dict]) -> dict[str, dict]:
     """
     Computes calibrated historical arrival and departure delays for every stop on db_route.
@@ -559,7 +561,11 @@ def get_route_delays_interpolated(train_number: str, db_route: list[dict]) -> di
     Intermediate cabins / flag stations are linearly interpolated based on distance.
     Returns: { station_code: { 'arr_delay': float, 'dep_delay': float } }
     """
-    stn_delays = get_historical_station_delays_for_train(train_number)
+    tn = str(train_number).strip()
+    if tn in _ROUTE_DELAYS_CACHE:
+        return _ROUTE_DELAYS_CACHE[tn]
+
+    stn_delays = get_historical_station_delays_for_train(tn)
     if not db_route:
         return {}
 
@@ -637,5 +643,6 @@ def get_route_delays_interpolated(train_number: str, db_route: list[dict]) -> di
         d = round(last_dep + 5.0 * frac, 1)
         result[code] = {"arr_delay": max(0.0, d), "dep_delay": max(0.0, d)}
 
+    _ROUTE_DELAYS_CACHE[tn] = result
     return result
 
